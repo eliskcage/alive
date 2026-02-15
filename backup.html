@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<!-- ALIVE Backup Wizard v1.0 — Feb 15 2026 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALIVE — Device Backup Wizard</title>
+<meta name="description" content="Safely back up your phone before converting it to an ALIVE host.">
+<link rel="icon" type="image/svg+xml" href="/alive/icon-192.svg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#0a0e1a;color:#e0f0ff;
+  font-family:'Segoe UI',system-ui,sans-serif;
+  line-height:1.6;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wizard{
+  max-width:600px;margin:0 auto;padding:32px 24px;
+}
+
+.wizard-header{
+  text-align:center;padding:40px 0 32px;
+  border-bottom:1px solid rgba(0,255,136,0.08);
+  margin-bottom:32px;
+}
+.wizard-header h1{
+  font-size:28px;font-weight:300;letter-spacing:4px;margin-bottom:8px;
+}
+.wizard-header h1 span{color:#00ff88}
+.wizard-header p{font-size:13px;color:rgba(224,240,255,0.4)}
+
+.wizard-warning{
+  background:rgba(255,60,60,0.08);
+  border:1px solid rgba(255,60,60,0.2);
+  border-radius:8px;padding:20px;margin-bottom:32px;
+}
+.wizard-warning h3{color:#ff6b6b;font-size:13px;letter-spacing:2px;margin-bottom:8px}
+.wizard-warning p{font-size:12px;color:rgba(255,150,150,0.7);line-height:1.7}
+
+.step{
+  background:rgba(0,212,255,0.03);
+  border:1px solid rgba(0,212,255,0.08);
+  border-radius:8px;margin-bottom:16px;
+  overflow:hidden;transition:border-color 0.3s;
+}
+.step.completed{border-color:rgba(0,255,136,0.3)}
+.step.active{border-color:rgba(0,212,255,0.3)}
+
+.step-header{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 20px;cursor:pointer;
+  transition:background 0.2s;
+}
+.step-header:hover{background:rgba(0,212,255,0.03)}
+
+.step-num{
+  width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(0,212,255,0.2);border-radius:50%;
+  font-family:monospace;font-size:12px;color:rgba(0,212,255,0.5);
+  flex-shrink:0;transition:all 0.3s;
+}
+.step.completed .step-num{
+  border-color:#00ff88;color:#00ff88;
+  background:rgba(0,255,136,0.1);
+}
+
+.step-title{flex:1;font-size:14px;color:rgba(224,240,255,0.7)}
+.step.completed .step-title{color:rgba(0,255,136,0.7)}
+
+.step-check{
+  font-size:16px;color:rgba(0,212,255,0.2);transition:color 0.3s;
+}
+.step.completed .step-check{color:#00ff88}
+
+.step-body{
+  display:none;padding:0 20px 20px;
+}
+.step.active .step-body{display:block}
+
+.step-body p{font-size:12px;color:rgba(224,240,255,0.5);margin-bottom:12px;line-height:1.7}
+.step-body ol{font-size:12px;color:rgba(224,240,255,0.5);padding-left:20px;margin-bottom:16px;line-height:1.8}
+.step-body ol li{margin-bottom:4px}
+.step-body strong{color:rgba(224,240,255,0.8)}
+
+.sub-checks{
+  display:flex;flex-direction:column;gap:8px;margin:12px 0;
+}
+.sub-check{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;
+  background:rgba(0,212,255,0.03);
+  border-radius:4px;cursor:pointer;
+  transition:background 0.2s;
+}
+.sub-check:hover{background:rgba(0,212,255,0.06)}
+.sub-check input{width:16px;height:16px;accent-color:#00ff88;cursor:pointer}
+.sub-check label{font-size:12px;color:rgba(224,240,255,0.6);cursor:pointer;flex:1}
+
+.step-confirm{
+  padding:10px 24px;
+  background:rgba(0,255,136,0.1);
+  border:1px solid rgba(0,255,136,0.25);
+  color:#00ff88;font-family:monospace;
+  font-size:11px;letter-spacing:2px;
+  border-radius:4px;cursor:pointer;
+  transition:all 0.2s;
+  margin-top:8px;
+}
+.step-confirm:hover{background:rgba(0,255,136,0.2)}
+.step-confirm:disabled{opacity:0.3;cursor:not-allowed}
+
+.progress-bar{
+  width:100%;height:4px;
+  background:rgba(0,212,255,0.08);
+  border-radius:2px;margin:24px 0;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,#00ff88,#00d4ff);
+  border-radius:2px;transition:width 0.5s ease;
+}
+
+.final-zone{
+  text-align:center;padding:32px 0;
+  display:none;
+}
+.final-zone.visible{display:block}
+.final-zone h2{font-size:24px;font-weight:300;margin-bottom:12px}
+.final-zone h2 span{color:#00ff88}
+.final-zone p{font-size:13px;color:rgba(224,240,255,0.5);margin-bottom:24px}
+
+.btn-convert{
+  padding:16px 48px;
+  background:#00ff88;color:#0a0e1a;
+  font-size:14px;font-weight:600;letter-spacing:3px;
+  border:none;border-radius:8px;cursor:pointer;
+  transition:all 0.3s;
+}
+.btn-convert:hover{
+  background:#00d4ff;
+  box-shadow:0 0 40px rgba(0,255,136,0.3);
+  transform:translateY(-2px);
+}
+
+.btn-back{
+  display:inline-block;margin-top:24px;
+  color:rgba(224,240,255,0.3);text-decoration:none;
+  font-size:12px;letter-spacing:1px;
+  transition:color 0.2s;
+}
+.btn-back:hover{color:#00ff88}
+</style>
+<!-- GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1XY2CNLJCE"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-1XY2CNLJCE');</script>
+</head>
+<body>
+
+<div class="wizard">
+
+  <div class="wizard-header">
+    <h1>DEVICE <span>BACKUP</span></h1>
+    <p>Complete every step before converting your phone to an ALIVE host.</p>
+  </div>
+
+  <div class="wizard-warning">
+    <h3>POINT OF NO RETURN</h3>
+    <p>Once you convert this device, it becomes ShortFactory property as per the custodian agreement you signed. All existing data, accounts, apps, wallets, and credentials on this device will be permanently erased. If you skip a backup step and lose access to a crypto wallet, email account, authenticator app, banking app, or anything else — that is entirely on you. We told you. Back it all up. Now.</p>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <!-- STEP 1: Google Account -->
+  <div class="step active" id="step1">
+    <div class="step-header" onclick="toggleStep(1)">
+      <div class="step-num">1</div>
+      <div class="step-title">Google Account Backup</div>
+      <div class="step-check">&#10003;</div>
+    </div>
+    <div class="step-body">
+      <p>Your Google account syncs contacts, calendar, app data, and settings. Make sure it's all backed up to the cloud before we wipe.</p>
+      <ol>
+        <li>Go to <strong>Settings > Accounts > Google</strong></li>
+        <li>Tap your Google account</li>
+        <li>Enable sync for: Contacts, Calendar, App Data, Drive</li>
+        <li>Go to <strong>Settings > System > Backup</strong></li>
+        <li>Tap <strong>Back up now</strong> and wait for completion</li>
+        <li>Verify at <strong>drive.google.com</strong> on another device</li>
+      </ol>
+      <div class="sub-checks">
+        <div class="sub-check"><input type="checkbox" id="s1a" onchange="checkStep(1)"><label for="s1a">Google sync completed</label></div>
+        <div class="sub-check"><input type="checkbox" id="s1b" onchange="checkStep(1)"><label for="s1b">Backup verified on another device</label></div>
+        <div class="sub-check"><input type="checkbox" id="s1c" onchange="checkStep(1)"><label for="s1c">I know my Google password (not just fingerprint)</label></div>
+      </div>
+      <button class="step-confirm" id="btn1" disabled onclick="completeStep(1)">CONFIRMED</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Photos & Videos -->
+  <div class="step" id="step2">
+    <div class="step-header" onclick="toggleStep(2)">
+      <div class="step-num">2</div>
+      <div class="step-title">Photos & Videos</div>
+      <div class="step-check">&#10003;</div>
+    </div>
+    <div class="step-body">
+      <p>Photos are irreplaceable. Back them up to Google Photos AND to your laptop via USB cable. Belt and braces.</p>
+      <ol>
+        <li>Open <strong>Google Photos</strong> > Settings > Backup > turn ON</li>
+        <li>Wait for "Backup complete" message</li>
+        <li>Connect phone to laptop via USB cable</li>
+        <li>Copy entire <strong>DCIM</strong> folder to laptop</li>
+        <li>Also copy <strong>Pictures</strong>, <strong>Movies</strong>, and <strong>Download</strong> folders</li>
+        <li>Verify photo count matches on laptop</li>
+      </ol>
+      <div class="sub-checks">
+        <div class="sub-check"><input type="checkbox" id="s2a" onchange="checkStep(2)"><label for="s2a">Google Photos backup complete</label></div>
+        <div class="sub-check"><input type="checkbox" id="s2b" onchange="checkStep(2)"><label for="s2b">All photos copied to laptop via USB</label></div>
+        <div class="sub-check"><input type="checkbox" id="s2c" onchange="checkStep(2)"><label for="s2c">Photo count verified</label></div>
+      </div>
+      <button class="step-confirm" id="btn2" disabled onclick="completeStep(2)">CONFIRMED</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Messages & Contacts -->
+  <div class="step" id="step3">
+    <div class="step-header" onclick="toggleStep(3)">
+      <div class="step-num">3</div>
+      <div class="step-title">Messages & Contacts</div>
+      <div class="step-check">&#10003;</div>
+    </div>
+    <div class="step-body">
+      <p>Text messages, WhatsApp chats, and contacts. Export everything you care about.</p>
+      <ol>
+        <li><strong>Contacts:</strong> Already covered by Google sync (Step 1). Verify at contacts.google.com</li>
+        <li><strong>SMS:</strong> Use SMS Backup & Restore app from Play Store. Export to Google Drive</li>
+        <li><strong>WhatsApp:</strong> Settings > Chats > Chat Backup > Back up to Google Drive</li>
+        <li><strong>Telegram:</strong> Already cloud-synced, just make sure you know your login</li>
+        <li><strong>Signal:</strong> Settings > Chats > Chat backups > Create backup (save passphrase!)</li>
+      </ol>
+      <div class="sub-checks">
+        <div class="sub-check"><input type="checkbox" id="s3a" onchange="checkStep(3)"><label for="s3a">Contacts verified in Google</label></div>
+        <div class="sub-check"><input type="checkbox" id="s3b" onchange="checkStep(3)"><label for="s3b">Messages backed up</label></div>
+        <div class="sub-check"><input type="checkbox" id="s3c" onchange="checkStep(3)"><label for="s3c">Chat apps backed up or not applicable</label></div>
+      </div>
+      <button class="step-confirm" id="btn3" disabled onclick="completeStep(3)">CONFIRMED</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Authenticator & 2FA -->
+  <div class="step" id="step4">
+    <div class="step-header" onclick="toggleStep(4)">
+      <div class="step-num">4</div>
+      <div class="step-title">Authenticator Apps & 2FA</div>
+      <div class="step-check">&#10003;</div>
+    </div>
+    <div class="step-body">
+      <p><strong>THIS IS THE ONE PEOPLE FORGET.</strong> If you use Google Authenticator, Authy, or any 2FA app, losing it locks you out of accounts permanently. Do not skip this.</p>
+      <ol>
+        <li><strong>Google Authenticator:</strong> Open app > Transfer accounts > Export. Scan QR on new device</li>
+        <li><strong>Authy:</strong> Enable multi-device in settings, add to another device, then disable multi-device</li>
+        <li><strong>Microsoft Authenticator:</strong> Enable cloud backup in settings</li>
+        <li>For every account using 2FA: log in on another device and verify you can access it WITHOUT this phone</li>
+        <li>Save backup codes for all critical accounts (Google, GitHub, banking, exchange accounts)</li>
+      </ol>
+      <div class="sub-checks">
+        <div class="sub-check"><input type="checkbox" id="s4a" onchange="checkStep(4)"><label for="s4a">Authenticator apps transferred or backed up</label></div>
+        <div class="sub-check"><input type="checkbox" id="s4b" onchange="checkStep(4)"><label for="s4b">All 2FA accounts accessible from another device</label></div>
+        <div class="sub-check"><input type="checkbox" id="s4c" onchange="checkStep(4)"><label for="s4c">Backup codes saved somewhere safe</label></div>
+      </div>
+      <button class="step-confirm" id="btn4" disabled onclick="completeStep(4)">CONFIRMED</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Crypto & Banking -->
+  <div class="step" id="step5">
+    <div class="step-header" onclick="toggleStep(5)">
+      <div class="step-num">5</div>
+      <div class="step-title">Crypto Wallets & Banking</div>
+      <div class="step-check">&#10003;</div>
+    </div>
+    <div class="step-body">
+      <p><strong>If you have crypto on this phone and you lose the seed phrase, it is gone forever.</strong> We are not responsible. This is your final warning on this point.</p>
+      <ol>
+        <li><strong>Seed phrases:</strong> Write down every wallet's recovery phrase on PAPER. Not a screenshot. Paper.</li>
+        <li><strong>MetaMask:</strong> Settings > Security > Reveal Secret Recovery Phrase. Write it down</li>
+        <li><strong>Trust Wallet:</strong> Settings > Wallets > Show Recovery Phrase</li>
+        <li><strong>Any other wallet:</strong> Find and record the seed/recovery phrase</li>
+        <li><strong>Banking apps:</strong> Verify you can log in via browser or another device</li>
+        <li><strong>PayPal/Stripe:</strong> Verify access from another device</li>
+        <li>Test restoring one wallet on another device to be sure</li>
+      </ol>
+      <div class="sub-checks">
+        <div class="sub-check"><input type="checkbox" id="s5a" onchange="checkStep(5)"><label for="s5a">All seed phrases written on paper and stored safely</label></div>
+        <div class="sub-check"><input type="checkbox" id="s5b" onchange="checkStep(5)"><label for="s5b">Banking apps accessible from another device</label></div>
+        <div class="sub-check"><input type="checkbox" id="s5c" onchange="checkStep(5)"><label for="s5c">No crypto or financial apps remain only on this device</label></div>
+      </div>
+      <button class="step-confirm" id="btn5" disabled onclick="completeStep(5)">CONFIRMED</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: Apps & Documents -->
+  <div class="step" id="step6">
+    <div class="step-header" onclick="toggleStep(6)">
+      <div class="step-num">6</div>
+      <div class="step-title">Apps, Documents & Downloads</div>
+      <div class="step-check">&#10003;</div>
+    </div>
+    <div class="step-body">
+      <p>Anything else on the phone that matters. Game saves, documents, downloaded files, notes, music.</p>
+      <ol>
+        <li>Connect phone to laptop via USB</li>
+        <li>Browse through ALL folders — especially <strong>Documents</strong>, <strong>Download</strong>, <strong>Music</strong></li>
+        <li>Copy anything you want to keep</li>
+        <li><strong>Notes apps:</strong> Export or sync (Google Keep, Samsung Notes, etc.)</li>
+        <li><strong>Game saves:</strong> Check if cloud-synced, export if possible</li>
+        <li><strong>App-specific data:</strong> Any app that stores data locally — export it</li>
+      </ol>
+      <div class="sub-checks">
+        <div class="sub-check"><input type="checkbox" id="s6a" onchange="checkStep(6)"><label for="s6a">All important files copied to laptop</label></div>
+        <div class="sub-check"><input type="checkbox" id="s6b" onchange="checkStep(6)"><label for="s6b">Notes and documents exported</label></div>
+        <div class="sub-check"><input type="checkbox" id="s6c" onchange="checkStep(6)"><label for="s6c">Nothing left on this phone that I can't live without</label></div>
+      </div>
+      <button class="step-confirm" id="btn6" disabled onclick="completeStep(6)">CONFIRMED</button>
+    </div>
+  </div>
+
+  <!-- STEP 7: SIM & Network -->
+  <div class="step" id="step7">
+    <div class="step-header" onclick="toggleStep(7)">
+      <div class="step-num">7</div>
+      <div class="step-title">SIM Card & Network</div>
+      <div class="step-check">&#10003;</div>
+    </div>
+    <div class="step-body">
+      <p>The ALIVE creature needs internet. Decide how it's going to stay connected.</p>
+      <ol>
+        <li><strong>Option A — WiFi only:</strong> Remove SIM, creature uses home WiFi. Free but limited to home range</li>
+        <li><strong>Option B — Keep SIM:</strong> Creature has mobile data. Moves with you. Costs data plan</li>
+        <li><strong>Option C — Data-only SIM:</strong> Get a cheap data SIM. Creature has its own connection</li>
+        <li>If removing SIM: transfer your number to another device first</li>
+        <li>If keeping SIM: ensure phone bill is handled</li>
+      </ol>
+      <div class="sub-checks">
+        <div class="sub-check"><input type="checkbox" id="s7a" onchange="checkStep(7)"><label for="s7a">Decided on connectivity method</label></div>
+        <div class="sub-check"><input type="checkbox" id="s7b" onchange="checkStep(7)"><label for="s7b">SIM / number transfer handled if needed</label></div>
+      </div>
+      <button class="step-confirm" id="btn7" disabled onclick="completeStep(7)">CONFIRMED</button>
+    </div>
+  </div>
+
+  <!-- STEP 8: Final Confirmation -->
+  <div class="step" id="step8">
+    <div class="step-header" onclick="toggleStep(8)">
+      <div class="step-num">8</div>
+      <div class="step-title">Final Confirmation</div>
+      <div class="step-check">&#10003;</div>
+    </div>
+    <div class="step-body">
+      <p>This is it. Last chance. After this, the phone becomes an ALIVE host.</p>
+      <div class="sub-checks">
+        <div class="sub-check"><input type="checkbox" id="s8a" onchange="checkStep(8)"><label for="s8a">I have completed ALL backup steps above</label></div>
+        <div class="sub-check"><input type="checkbox" id="s8b" onchange="checkStep(8)"><label for="s8b">I understand this device becomes ShortFactory property</label></div>
+        <div class="sub-check"><input type="checkbox" id="s8c" onchange="checkStep(8)"><label for="s8c">I accept that any data not backed up is permanently lost</label></div>
+        <div class="sub-check"><input type="checkbox" id="s8d" onchange="checkStep(8)"><label for="s8d">I have signed the custodian agreement</label></div>
+      </div>
+      <button class="step-confirm" id="btn8" disabled onclick="completeStep(8)">I UNDERSTAND — PROCEED</button>
+    </div>
+  </div>
+
+  <!-- FINAL: Convert -->
+  <div class="final-zone" id="finalZone">
+    <h2>Ready for <span>conversion</span></h2>
+    <p>All backups verified. This device will now be prepared for its new life as an ALIVE host. Follow the conversion instructions on your laptop.</p>
+    <button class="btn-convert" onclick="beginConversion()">BEGIN CONVERSION</button>
+    <br>
+    <a href="/alive/app.html" class="btn-back">back to ALIVE</a>
+  </div>
+
+  <a href="/alive/app.html" class="btn-back" style="display:block;text-align:center;margin-top:32px">back to ALIVE</a>
+
+</div>
+
+<script>
+var totalSteps = 8;
+var completed = {};
+
+/* Sub-check requirements per step */
+var required = {
+  1: ['s1a','s1b','s1c'],
+  2: ['s2a','s2b','s2c'],
+  3: ['s3a','s3b','s3c'],
+  4: ['s4a','s4b','s4c'],
+  5: ['s5a','s5b','s5c'],
+  6: ['s6a','s6b','s6c'],
+  7: ['s7a','s7b'],
+  8: ['s8a','s8b','s8c','s8d']
+};
+
+function checkStep(n) {
+  var ids = required[n];
+  var allChecked = ids.every(function(id) {
+    return document.getElementById(id).checked;
+  });
+  var btn = document.getElementById('btn' + n);
+  btn.disabled = !allChecked;
+}
+
+function completeStep(n) {
+  completed[n] = true;
+  var el = document.getElementById('step' + n);
+  el.classList.remove('active');
+  el.classList.add('completed');
+
+  /* Open next step */
+  if (n < totalSteps) {
+    var next = document.getElementById('step' + (n + 1));
+    next.classList.add('active');
+  }
+
+  updateProgress();
+
+  /* All done? Show convert zone */
+  if (Object.keys(completed).length >= totalSteps) {
+    document.getElementById('finalZone').classList.add('visible');
+  }
+
+  /* Save state */
+  localStorage.setItem('alive_backup_progress', JSON.stringify(completed));
+}
+
+function toggleStep(n) {
+  var el = document.getElementById('step' + n);
+  if (el.classList.contains('completed')) return; /* Don't reopen completed */
+  /* Close all others */
+  for (var i = 1; i <= totalSteps; i++) {
+    if (i !== n) document.getElementById('step' + i).classList.remove('active');
+  }
+  el.classList.toggle('active');
+}
+
+function updateProgress() {
+  var pct = (Object.keys(completed).length / totalSteps) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function beginConversion() {
+  localStorage.setItem('alive_backup_complete', JSON.stringify({
+    completed: true,
+    timestamp: Date.now(),
+    steps: Object.keys(completed).length
+  }));
+  /* Next: conversion instructions */
+  alert('Conversion process starting. Follow the setup guide on your laptop.\n\n1. Factory reset this device\n2. Set up with ShortFactory Google account\n3. Install Chrome\n4. Navigate to shortfactory.shop/alive/\n5. Add to Home Screen\n6. The creature will wake up.');
+}
+
+/* Restore progress */
+try {
+  var saved = JSON.parse(localStorage.getItem('alive_backup_progress') || '{}');
+  for (var k in saved) {
+    if (saved[k]) {
+      completed[k] = true;
+      var el = document.getElementById('step' + k);
+      el.classList.remove('active');
+      el.classList.add('completed');
+      /* Check all sub-checks */
+      var ids = required[k];
+      ids.forEach(function(id) {
+        var cb = document.getElementById(id);
+        if (cb) cb.checked = true;
+      });
+    }
+  }
+  updateProgress();
+  /* Open first incomplete step */
+  for (var i = 1; i <= totalSteps; i++) {
+    if (!completed[i]) {
+      document.getElementById('step' + i).classList.add('active');
+      break;
+    }
+  }
+  if (Object.keys(completed).length >= totalSteps) {
+    document.getElementById('finalZone').classList.add('visible');
+  }
+} catch(e) {}
+</script>
+</body>
+</html>

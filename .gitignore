@@ -1,0 +1,25 @@
+# Dependencies
+boy-src/node_modules/
+boy-src/.angular/
+
+# Build output
+boy/
+
+# Auth data (generated at runtime)
+auth_data/
+
+# Sync data (generated at runtime)
+sync_data/
+
+# Backups
+*copycopy*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

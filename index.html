@@ -1,0 +1,4574 @@
+<!DOCTYPE html>
+<!-- ALIVE App v3.1 — Signal Negotiation Protocol — Feb 13 2026 -->
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  ALIVE — Adaptive Living Interactive Virtual Entity          ║
+  ║  Copyright (c) 2026 ShortFactory / Dan [eliskcage]           ║
+  ║  All rights reserved. Proprietary and confidential.          ║
+  ║  Unauthorized copying, distribution, or derivative works     ║
+  ║  of this software is strictly prohibited.                    ║
+  ║  First commit: Feb 15, 2026 — prior art established.         ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#050508">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>ALIVE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+  width:100%;height:100%;
+  background:#050508;color:#fff;
+  font-family:'Inter',sans-serif;
+  overflow:hidden;
+  touch-action:none;
+  -webkit-user-select:none;user-select:none;
+}
+
+/* ═══ LOCK SCREEN — FULL VIEWPORT SOUL GLOW ═══ */
+.lock-screen{
+  position:fixed;inset:0;z-index:5;
+  background:#000;
+  display:flex;align-items:flex-end;justify-content:center;
+  transition:all 1s cubic-bezier(0.25,1,0.35,1);
+}
+.lock-screen.unlocked{opacity:0;transform:scale(1.15);pointer-events:none;}
+
+.soul-glow{position:absolute;inset:0;overflow:hidden;background:#000;}
+.soul-layer{position:absolute;border-radius:50%;mix-blend-mode:screen;will-change:transform;}
+.soul-layer.s1{inset:-30%;background:radial-gradient(circle,#ff00ff,#ff00ff 20%,transparent 60%);opacity:0.9;animation:soul1 6s ease-in-out infinite;}
+.soul-layer.s2{inset:-25%;background:radial-gradient(circle,#00ffff,#00ffff 20%,transparent 60%);opacity:0.85;animation:soul2 7s ease-in-out infinite;}
+.soul-layer.s3{inset:-35%;background:radial-gradient(circle,#ffff00,#ffff00 15%,transparent 55%);opacity:0.8;animation:soul3 8s ease-in-out infinite;}
+.soul-layer.s4{inset:-20%;background:radial-gradient(circle,#ff3300,#ff6600 20%,transparent 55%);opacity:0.85;animation:soul4 5s ease-in-out infinite;}
+.soul-layer.s5{inset:-30%;background:radial-gradient(circle,#00ff66,#00ff99 20%,transparent 55%);opacity:0.8;animation:soul5 9s ease-in-out infinite;}
+.soul-layer.s6{inset:-25%;background:radial-gradient(circle,#3366ff,#0099ff 20%,transparent 60%);opacity:0.9;animation:soul6 6.5s ease-in-out infinite;}
+.soul-layer.s7{inset:-20%;background:radial-gradient(circle,#ff0066,#ff3399 15%,transparent 50%);opacity:0.75;animation:soul7 7.5s ease-in-out infinite;}
+@keyframes soul1{0%{transform:translate(-30%,-20%) scale(0.7);}50%{transform:translate(25%,15%) scale(1.1);}100%{transform:translate(-30%,-20%) scale(0.7);}}
+@keyframes soul2{0%{transform:translate(20%,-30%) scale(1);}50%{transform:translate(-25%,20%) scale(0.8);}100%{transform:translate(20%,-30%) scale(1);}}
+@keyframes soul3{0%{transform:translate(10%,25%) scale(0.9);}50%{transform:translate(-20%,-25%) scale(1.15);}100%{transform:translate(10%,25%) scale(0.9);}}
+@keyframes soul4{0%{transform:translate(-15%,10%) scale(1.1);}50%{transform:translate(30%,-15%) scale(0.75);}100%{transform:translate(-15%,10%) scale(1.1);}}
+@keyframes soul5{0%{transform:translate(25%,-10%) scale(0.85);}50%{transform:translate(-20%,30%) scale(1.05);}100%{transform:translate(25%,-10%) scale(0.85);}}
+@keyframes soul6{0%{transform:translate(-10%,20%) scale(1);}50%{transform:translate(15%,-20%) scale(0.9);}100%{transform:translate(-10%,20%) scale(1);}}
+@keyframes soul7{0%{transform:translate(5%,-5%) scale(0.95);}50%{transform:translate(-15%,15%) scale(1.1);}100%{transform:translate(5%,-5%) scale(0.95);}}
+
+.thumb-zone{
+  position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+  width:72px;height:72px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,0.95),rgba(255,255,255,0.5) 40%,rgba(255,255,255,0.1) 65%,transparent 80%);
+  z-index:10;cursor:pointer;
+  transition:all 0.6s ease;
+  animation:thumbBreath 2.5s ease-in-out infinite;
+}
+@keyframes thumbBreath{0%,100%{box-shadow:0 0 25px rgba(255,255,255,0.4),0 0 50px rgba(255,255,255,0.1);}50%{box-shadow:0 0 40px rgba(255,255,255,0.7),0 0 80px rgba(255,255,255,0.2);}}
+.thumb-zone:hover{transform:translateX(-50%) scale(1.15);}
+.thumb-zone.pressed{
+  background:radial-gradient(circle,rgba(255,255,255,1),rgba(167,139,250,0.8) 40%,transparent 80%);
+  animation:none;box-shadow:0 0 60px rgba(255,255,255,0.8),0 0 120px rgba(167,139,250,0.4);
+}
+
+/* ═══ AUTH UI ═══ */
+.auth-hint{
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  font-family:'Orbitron',monospace;font-size:8px;letter-spacing:3px;
+  color:rgba(255,255,255,0.25);z-index:10;white-space:nowrap;
+  transition:all 0.5s ease;
+}
+.auth-register-btn{
+  position:absolute;bottom:160px;left:50%;transform:translateX(-50%);
+  width:56px;height:56px;border-radius:50%;
+  background:radial-gradient(circle,rgba(167,139,250,0.7),rgba(167,139,250,0.2) 50%,transparent 75%);
+  box-shadow:0 0 20px rgba(167,139,250,0.3),0 0 40px rgba(167,139,250,0.1);
+  z-index:10;cursor:pointer;
+  transition:all 0.6s ease;
+  animation:regBtnPulse 2.5s ease-in-out infinite;
+}
+@keyframes regBtnPulse{0%,100%{box-shadow:0 0 20px rgba(167,139,250,0.3),0 0 40px rgba(167,139,250,0.1);}50%{box-shadow:0 0 35px rgba(167,139,250,0.5),0 0 70px rgba(167,139,250,0.2);}}
+.auth-register-btn:active{
+  background:radial-gradient(circle,rgba(167,139,250,1),rgba(255,255,255,0.5) 40%,transparent 75%);
+  animation:none;box-shadow:0 0 50px rgba(167,139,250,0.8);
+}
+.auth-register-btn.hidden{opacity:0;pointer-events:none;transform:translateX(-50%) scale(0);}
+.auth-register-label{
+  position:absolute;bottom:130px;left:50%;transform:translateX(-50%);
+  font-family:'Orbitron',monospace;font-size:7px;letter-spacing:2px;
+  color:rgba(167,139,250,0.4);z-index:10;white-space:nowrap;
+  transition:all 0.6s ease;
+}
+.auth-register-label.hidden{opacity:0;}
+
+/* ═══ ALIVE SCREEN — FULL VIEWPORT ═══ */
+.alive-screen{
+  position:fixed;inset:0;z-index:4;
+  background:#0a0f1e;
+  opacity:0;transition:all 1s cubic-bezier(0.25,1,0.35,1) 0.4s;
+  overflow:hidden;cursor:pointer;
+}
+.alive-screen.visible{opacity:1;}
+.alive-canvas{position:absolute;inset:0;pointer-events:none;}
+
+/* Touch response overlay — green left, red right */
+.touch-glow{
+  position:absolute;border-radius:50%;
+  width:300px;height:300px;
+  pointer-events:none;z-index:8;
+  opacity:0;transition:opacity 0.3s ease;
+  transform:translate(-50%,-50%);
+}
+.touch-glow.green{background:radial-gradient(circle,rgba(16,185,129,0.5),rgba(16,185,129,0.15) 40%,transparent 70%);}
+.touch-glow.red{background:radial-gradient(circle,rgba(239,68,68,0.5),rgba(239,68,68,0.15) 40%,transparent 70%);}
+.touch-glow.show{opacity:1;}
+
+/* Alive elements */
+.alive-node{position:absolute;border-radius:50%;opacity:0;transition:opacity 1.5s ease;}
+.alive-screen.visible .alive-node{opacity:1;}
+.alive-ring{position:absolute;border-radius:50%;border:1px solid rgba(167,139,250,0.08);animation:ringPulse 4s ease-in-out infinite;}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:0.3;}50%{transform:scale(1.05);opacity:0.6;}}
+.alive-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(100,140,255,0.25),rgba(100,140,255,0.05) 60%,transparent 80%);animation:coreBreathe 3s ease-in-out infinite;transition:background 0.8s ease, box-shadow 0.8s ease;}
+@keyframes coreBreathe{0%,100%{transform:translate(-50%,-50%) scale(1);box-shadow:0 0 30px rgba(100,140,255,0.15);}50%{transform:translate(-50%,-50%) scale(1.2);box-shadow:0 0 60px rgba(100,140,255,0.3);}}
+.alive-particle{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(167,139,250,0.6);opacity:0;}
+.alive-screen.visible .alive-particle{opacity:1;}
+.alive-stream{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(100,180,255,0.3),transparent);opacity:0;}
+.alive-screen.visible .alive-stream{opacity:1;}
+
+/* ═══ SLEEP MODE ═══ */
+.sleep-overlay{
+  position:absolute;inset:0;z-index:9;
+  background:radial-gradient(circle at 50% 50%,rgba(15,20,40,0.0),rgba(5,8,20,0.95) 70%);
+  pointer-events:none;opacity:0;transition:opacity 2s ease;
+}
+.sleep-overlay.asleep{opacity:1;pointer-events:auto;cursor:pointer;}
+.zzz{position:absolute;font-size:18px;opacity:0;color:rgba(167,139,250,0.4);font-family:'Orbitron',monospace;pointer-events:none;}
+
+/* ═══ SF PORTAL ═══ */
+.sf-portal{
+  position:absolute;top:12%;left:50%;transform:translate(-50%,0) scale(0);
+  width:60px;height:60px;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,158,11,0.6),rgba(245,158,11,0.15) 50%,transparent 75%);
+  box-shadow:0 0 30px rgba(245,158,11,0.3),0 0 60px rgba(245,158,11,0.1);
+  z-index:7;cursor:pointer;
+  transition:transform 0.8s cubic-bezier(0.34,1.56,0.64,1), opacity 0.8s ease, box-shadow 0.5s ease;
+  opacity:0;
+  animation:portalPulse 2s ease-in-out infinite;
+}
+.sf-portal.visible{transform:translate(-50%,0) scale(1);opacity:1;}
+.sf-portal:hover{box-shadow:0 0 50px rgba(245,158,11,0.5),0 0 100px rgba(245,158,11,0.2);transform:translate(-50%,0) scale(1.2);}
+@keyframes portalPulse{0%,100%{box-shadow:0 0 30px rgba(245,158,11,0.3),0 0 60px rgba(245,158,11,0.1);}50%{box-shadow:0 0 45px rgba(245,158,11,0.5),0 0 90px rgba(245,158,11,0.2);}}
+.sf-portal-label{
+  position:absolute;top:calc(12% + 70px);left:50%;transform:translateX(-50%);
+  font-family:'Orbitron',monospace;font-size:8px;letter-spacing:3px;
+  color:rgba(245,158,11,0.0);z-index:7;white-space:nowrap;
+  transition:color 0.8s ease;pointer-events:none;
+}
+.sf-portal-label.visible{color:rgba(245,158,11,0.4);}
+
+/* ═══ TRUST BAR ═══ */
+.trust-bar{
+  position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  width:50%;height:3px;border-radius:2px;
+  background:rgba(255,255,255,0.05);z-index:8;
+  overflow:hidden;opacity:0;transition:opacity 0.5s;
+}
+.trust-bar.visible{opacity:1;}
+.trust-fill{height:100%;border-radius:2px;transition:width 0.8s ease, background 0.5s ease;width:50%;background:linear-gradient(90deg,#a78bfa,#06b6d4);}
+
+/* ═══ LISTENING EAR ═══ */
+.listen-indicator{
+  position:absolute;bottom:22px;right:20px;
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(167,139,250,0.0);z-index:8;
+  transition:all 0.5s ease;pointer-events:none;
+}
+.listen-indicator.hearing{
+  background:rgba(167,139,250,0.15);
+  box-shadow:0 0 12px rgba(167,139,250,0.3);
+  animation:earPulse 0.6s ease-in-out infinite alternate;
+}
+.listen-indicator.singing{
+  background:rgba(245,158,11,0.2);
+  box-shadow:0 0 20px rgba(245,158,11,0.4);
+  animation:earPulse 0.3s ease-in-out infinite alternate;
+}
+@keyframes earPulse{0%{transform:scale(1);}100%{transform:scale(1.3);}}
+
+/* ═══ CAMERA EYE ═══ */
+.camera-feed{
+  position:absolute;inset:0;z-index:1;
+  opacity:0;transition:opacity 2s ease;
+  object-fit:cover;width:100%;height:100%;
+  filter:brightness(0.15) saturate(0.3) hue-rotate(200deg);
+  mix-blend-mode:screen;pointer-events:none;
+}
+.camera-feed.active{opacity:1;}
+.eye-indicator{
+  position:absolute;top:20px;right:20px;
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(239,68,68,0.0);z-index:8;
+  transition:all 0.5s ease;pointer-events:none;
+}
+.eye-indicator.seeing{
+  background:rgba(239,68,68,0.5);
+  box-shadow:0 0 8px rgba(239,68,68,0.4);
+  animation:eyeBlink 3s ease-in-out infinite;
+}
+@keyframes eyeBlink{0%,90%,100%{opacity:1;}95%{opacity:0;}}
+
+/* ═══ BATTERY / ENERGY ═══ */
+.energy-bar{
+  position:absolute;top:20px;left:20px;
+  width:30px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.06);z-index:8;
+  overflow:hidden;opacity:0;transition:opacity 0.5s;pointer-events:none;
+}
+.energy-bar.visible{opacity:1;}
+.energy-fill{height:100%;border-radius:2px;background:#10b981;transition:width 1s ease, background 0.5s;width:100%;}
+
+/* ═══ VISUAL MODE LABEL ═══ */
+.mode-label{
+  position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:5px;
+  color:rgba(255,255,255,0);z-index:8;
+  pointer-events:none;transition:color 2s ease;white-space:nowrap;
+  text-transform:uppercase;
+}
+.mode-label.show{color:rgba(255,255,255,0.12);}
+.mode-label.thinking{
+  color:rgba(255,255,255,0.06);
+  animation:modeThink 1.5s ease-in-out infinite;
+}
+@keyframes modeThink{0%,100%{opacity:0.5;}50%{opacity:1;}}
+
+/* Mode transition shimmer on core */
+.alive-core.shifting{
+  animation:coreShift 3s ease-in-out !important;
+}
+@keyframes coreShift{
+  0%{transform:translate(-50%,-50%) scale(1);}
+  30%{transform:translate(-50%,-50%) scale(1.4);filter:brightness(1.5);}
+  60%{transform:translate(-50%,-50%) scale(0.9);filter:brightness(0.8);}
+  100%{transform:translate(-50%,-50%) scale(1);filter:brightness(1);}
+}
+
+/* ═══ CONCEPT SYMBOLS ═══ */
+.symbol-container{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:hidden;}
+.alive-symbol{
+  position:absolute;font-family:'Orbitron',monospace;font-size:28px;
+  font-weight:700;opacity:0;transition:opacity 0.8s ease, transform 0.8s ease;
+  transform:scale(0.5);pointer-events:none;
+}
+.alive-symbol.visible{opacity:1;transform:scale(1);animation:symbolPulse 1.5s ease-in-out infinite;}
+@keyframes symbolPulse{0%,100%{transform:scale(1);filter:brightness(1);}50%{transform:scale(1.15);filter:brightness(1.3);}}
+
+/* ═══ SATOSHI PAIRING OVERLAY ═══ */
+.pair-overlay{
+  position:absolute;inset:0;z-index:20;
+  background:rgba(5,5,16,0.95);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.5s ease;
+}
+.pair-overlay.visible{opacity:1;pointer-events:auto;}
+.pair-title{
+  font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;
+  color:rgba(167,139,250,0.5);margin-bottom:20px;
+}
+.pair-canvas-wrap{
+  position:relative;width:200px;height:200px;margin-bottom:15px;
+  border:1px solid rgba(167,139,250,0.1);border-radius:12px;
+  overflow:hidden;background:#050510;
+}
+.pair-input{
+  width:240px;padding:12px 16px;font-size:14px;
+  font-family:'Courier New',monospace;text-align:center;
+  background:#111827;color:#a78bfa;border:1px solid #1e293b;border-radius:8px;
+  outline:none;margin-bottom:12px;
+}
+.pair-input:focus{border-color:#a78bfa;}
+.pair-input::placeholder{color:rgba(167,139,250,0.25);}
+.pair-btns{display:flex;gap:10px;}
+.pair-btn{
+  padding:10px 20px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;
+  background:#1e293b;color:#a78bfa;border:1px solid #334155;border-radius:6px;
+  cursor:pointer;transition:all 0.2s;
+}
+.pair-btn:active{background:#a78bfa;color:#0a0f1e;}
+.pair-btn.danger{color:#ef4444;border-color:#7f1d1d;}
+.pair-btn.danger:active{background:#ef4444;color:#fff;}
+.pair-btn.scan{color:#00d4ff;border-color:#1e4a5e;}
+.pair-btn.scan:active{background:#00d4ff;color:#0a0f1e;}
+.scan-zone{
+  position:relative;width:200px;height:200px;margin-bottom:15px;
+  border:1px solid rgba(0,212,255,0.2);border-radius:12px;
+  overflow:hidden;background:#050510;
+}
+.scan-zone video{width:100%;height:100%;object-fit:cover;}
+.scan-zone canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.scan-crosshair{
+  position:absolute;top:50%;left:50%;width:50px;height:50px;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(0,255,136,0.3);border-radius:50%;
+  box-shadow:0 0 12px rgba(0,255,136,0.15);pointer-events:none;
+}
+.aperture-row{
+  display:flex;align-items:center;gap:8px;width:200px;margin-top:6px;
+}
+.aperture-label{
+  font-family:'Orbitron',monospace;font-size:7px;letter-spacing:2px;
+  color:rgba(0,212,255,0.4);min-width:42px;
+}
+.aperture-slider{
+  flex:1;height:3px;-webkit-appearance:none;appearance:none;
+  background:rgba(0,212,255,0.15);border-radius:2px;outline:none;
+}
+.aperture-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:16px;height:16px;border-radius:50%;
+  background:#00d4ff;cursor:pointer;
+  box-shadow:0 0 8px rgba(0,212,255,0.5);
+}
+.aperture-val{
+  font-family:monospace;font-size:11px;color:#00d4ff;
+  min-width:24px;text-align:right;
+}
+.scan-status{
+  font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;
+  color:rgba(0,212,255,0.5);margin:6px 0;min-height:14px;text-align:center;
+}
+.pair-status{
+  font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;
+  color:rgba(16,185,129,0.5);margin-top:10px;min-height:14px;
+}
+.pair-ring{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:130px;height:130px;border-radius:50%;
+  border:2px solid transparent;
+  z-index:3;pointer-events:none;transition:border-color 1s ease, box-shadow 1s ease;
+}
+/* Tabs */
+.pair-tabs{display:flex;gap:0;margin-bottom:15px;}
+.pair-tab{
+  padding:8px 16px;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;
+  color:rgba(167,139,250,0.3);border-bottom:2px solid transparent;
+  cursor:pointer;transition:all 0.3s;
+}
+.pair-tab.active{color:rgba(167,139,250,0.8);border-bottom-color:#a78bfa;}
+.pair-tab:active{color:#a78bfa;}
+.pair-section{display:none;width:100%;max-width:300px;flex-direction:column;align-items:center;}
+.pair-section.active{display:flex;}
+/* Vault */
+.vault-list{
+  width:100%;max-height:200px;overflow-y:auto;margin-bottom:10px;
+  scrollbar-width:thin;scrollbar-color:#1e293b #050510;
+}
+.vault-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;margin-bottom:4px;
+  background:#111827;border-radius:6px;border:1px solid #1e293b;
+  font-size:11px;
+}
+.vault-item-label{color:#a78bfa;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;}
+.vault-item-val{color:rgba(255,255,255,0.3);font-size:10px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vault-item-del{color:#ef4444;cursor:pointer;font-size:14px;padding:0 4px;opacity:0.5;}
+.vault-item-del:active{opacity:1;}
+.vault-add{display:flex;gap:6px;width:100%;margin-bottom:8px;}
+.vault-add input{
+  flex:1;padding:8px 10px;font-size:11px;font-family:'Courier New',monospace;
+  background:#111827;color:#a78bfa;border:1px solid #1e293b;border-radius:6px;outline:none;
+}
+.vault-add input::placeholder{color:rgba(167,139,250,0.2);}
+/* IPFS */
+.ipfs-info{font-size:10px;color:rgba(255,255,255,0.3);text-align:center;margin-bottom:10px;line-height:1.5;}
+.ipfs-cid-list{
+  width:100%;max-height:120px;overflow-y:auto;margin-top:8px;
+  scrollbar-width:thin;scrollbar-color:#1e293b #050510;
+}
+.ipfs-cid{
+  padding:6px 10px;margin-bottom:3px;font-size:9px;
+  background:#111827;border-radius:4px;border:1px solid #1e293b;
+  color:rgba(16,185,129,0.6);word-break:break-all;
+}
+
+/* ═══ MOTION TRACKING LIGHT ═══ */
+.tracking-light{
+  position:absolute;width:50px;height:50px;border-radius:50%;
+  background:radial-gradient(circle,rgba(167,139,250,0.4),rgba(167,139,250,0.1) 50%,transparent 70%);
+  box-shadow:0 0 20px rgba(167,139,250,0.2);
+  z-index:5;pointer-events:none;opacity:0;
+  transition:opacity 0.3s ease;transform:translate(-50%,-50%);
+}
+.tracking-light.active{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="lock-screen" id="lockScreen">
+  <div class="soul-glow">
+    <div class="soul-layer s1"></div>
+    <div class="soul-layer s2"></div>
+    <div class="soul-layer s3"></div>
+    <div class="soul-layer s4"></div>
+    <div class="soul-layer s5"></div>
+    <div class="soul-layer s6"></div>
+    <div class="soul-layer s7"></div>
+  </div>
+  <div class="auth-register-btn" id="authRegBtn" onclick="thumbRegister()"></div>
+  <div class="auth-register-label" id="authRegLabel">REGISTER</div>
+  <div class="thumb-zone" id="thumbZone" onclick="thumbLogin()"></div>
+  <div class="auth-hint" id="authHint">VERIFY IDENTITY</div>
+</div>
+
+<div class="alive-screen" id="aliveScreen">
+  <video class="camera-feed" id="cameraFeed" autoplay playsinline muted></video>
+  <div class="eye-indicator" id="eyeIndicator"></div>
+  <div class="energy-bar" id="energyBar"><div class="energy-fill" id="energyFill"></div></div>
+  <div class="touch-glow green" id="touchGlowGreen"></div>
+  <div class="touch-glow red" id="touchGlowRed"></div>
+  <div class="sf-portal" id="sfPortal" onclick="openPortal()"></div>
+  <div class="sf-portal-label" id="sfPortalLabel">SHORTFACTORY</div>
+  <div class="alive-canvas" id="aliveCanvas"></div>
+  <div class="trust-bar" id="trustBar"><div class="trust-fill" id="trustFill"></div></div>
+  <div class="listen-indicator" id="listenIndicator"></div>
+  <div class="mode-label" id="modeLabel"></div>
+  <div class="symbol-container" id="symbolContainer"></div>
+  <div class="tracking-light" id="trackingLight"></div>
+  <div class="pair-ring" id="pairRing"></div>
+  <div class="pair-overlay" id="pairOverlay">
+    <div class="pair-title">SATOSHI SECURE</div>
+    <div class="pair-tabs">
+      <div class="pair-tab active" onclick="showTab('tunnel')">TUNNEL</div>
+      <div class="pair-tab" onclick="showTab('vault')">VAULT</div>
+      <div class="pair-tab" onclick="showTab('ipfs')">IPFS</div>
+    </div>
+    <!-- TUNNEL TAB -->
+    <div class="pair-section active" id="tabTunnel">
+      <div id="pairManual">
+        <div class="pair-canvas-wrap"><canvas id="pairCanvas" width="200" height="200"></canvas></div>
+        <input type="text" class="pair-input" id="pairInput" placeholder="enter passphrase" autocomplete="off">
+        <div class="pair-btns">
+          <div class="pair-btn" onclick="doPair()">PAIR</div>
+          <div class="pair-btn danger" onclick="doUnpair()">UNPAIR</div>
+          <div class="pair-btn scan" onclick="showForScan()">SHOW</div>
+          <div class="pair-btn scan" onclick="startScan()">SCAN</div>
+        </div>
+      </div>
+      <div id="pairScan" style="display:none;">
+        <div class="scan-zone">
+          <video id="scanVideo" autoplay playsinline></video>
+          <canvas id="scanCanvas"></canvas>
+        </div>
+        <div class="scan-status" id="scanStatus">evolving eyes...</div>
+        <div class="pair-btns"><div class="pair-btn danger" onclick="stopScan()">STOP</div></div>
+      </div>
+      <div id="pairShow" style="display:none;">
+        <div class="pair-canvas-wrap" style="width:300px;height:300px;">
+          <canvas id="showCanvas" width="300" height="300"></canvas>
+        </div>
+        <div class="scan-status" id="showStatus">hold to evolve</div>
+        <div class="pair-btns"><div class="pair-btn danger" onclick="hideShow()">DONE</div></div>
+      </div>
+    </div>
+    <!-- VAULT TAB -->
+    <div class="pair-section" id="tabVault">
+      <div class="vault-add">
+        <input type="text" id="vaultLabel" placeholder="label">
+        <input type="text" id="vaultValue" placeholder="api key / secret">
+        <div class="pair-btn" onclick="vaultAdd()">+</div>
+      </div>
+      <div class="vault-list" id="vaultList"></div>
+    </div>
+    <!-- IPFS TAB -->
+    <div class="pair-section" id="tabIpfs">
+      <div class="ipfs-info">Save creature mind to IPFS.<br>Permanent, decentralized, unhackable.</div>
+      <div class="pair-btns">
+        <div class="pair-btn" onclick="ipfsSaveMind()">SAVE MIND</div>
+        <div class="pair-btn" onclick="ipfsLoadMind()">LOAD CID</div>
+      </div>
+      <div class="ipfs-cid-list" id="ipfsCidList"></div>
+    </div>
+    <div class="pair-status" id="pairStatus"></div>
+    <div class="pair-btn" onclick="hidePairing()" style="margin-top:12px;">CLOSE</div>
+  </div>
+  <div class="sleep-overlay" id="sleepOverlay" onclick="wakeUp()"></div>
+</div>
+
+<script>
+/* ═══ WEBAUTHN BIOMETRIC LOGIN ═══ */
+var unlocked = false;
+
+/* Base64url helpers */
+function base64urlToUint8(b) {
+  var p = '==='.slice((b.length + 3) % 4);
+  var b64 = (b + p).replace(/-/g, '+').replace(/_/g, '/');
+  var raw = atob(b64);
+  var arr = new Uint8Array(raw.length);
+  for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+function uint8ToBase64url(arr) {
+  var bin = '';
+  for (var i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+/* Hide register button if already registered */
+if (localStorage.getItem('alive_registered')) {
+  document.getElementById('authRegBtn').classList.add('hidden');
+  document.getElementById('authRegLabel').classList.add('hidden');
+}
+
+function killRegisterBtn() {
+  localStorage.setItem('alive_registered', 'true');
+  document.getElementById('authRegBtn').classList.add('hidden');
+  document.getElementById('authRegLabel').classList.add('hidden');
+}
+
+/* Core unlock — called on successful auth */
+function doUnlock() {
+  if (unlocked) return;
+  unlocked = true;
+  document.getElementById('lockScreen').classList.add('unlocked');
+  document.getElementById('aliveScreen').classList.add('visible');
+  startAlive();
+}
+
+/* WebAuthn Login */
+function thumbLogin() {
+  if (unlocked) return;
+  var thumbEl = document.getElementById('thumbZone');
+  var hintEl = document.getElementById('authHint');
+  thumbEl.classList.add('pressed');
+
+  /* No WebAuthn support — fallback unlock */
+  if (!window.PublicKeyCredential) {
+    hintEl.textContent = 'NO BIOMETRIC — UNLOCKING';
+    setTimeout(doUnlock, 800);
+    return;
+  }
+
+  hintEl.textContent = 'VERIFYING...';
+
+  fetch('auth.php?op=login-options').then(function(r) { return r.json(); }).then(function(options) {
+    if (options.needsRegister) {
+      hintEl.textContent = 'REGISTER FIRST';
+      thumbEl.classList.remove('pressed');
+      return;
+    }
+    if (options.error) {
+      hintEl.textContent = 'SERVER ERROR';
+      thumbEl.classList.remove('pressed');
+      return;
+    }
+
+    var publicKey = {
+      challenge: base64urlToUint8(options.challenge),
+      allowCredentials: options.allowCredentials.map(function(c) {
+        return { type: c.type, id: base64urlToUint8(c.id) };
+      }),
+      timeout: options.timeout || 60000,
+      userVerification: 'preferred',
+      rpId: options.rpId
+    };
+
+    return navigator.credentials.get({ publicKey: publicKey }).then(function(assertion) {
+      return fetch('auth.php?op=login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: assertion.id,
+          rawId: uint8ToBase64url(new Uint8Array(assertion.rawId)),
+          response: {
+            clientDataJSON: uint8ToBase64url(new Uint8Array(assertion.response.clientDataJSON)),
+            authenticatorData: uint8ToBase64url(new Uint8Array(assertion.response.authenticatorData)),
+            signature: uint8ToBase64url(new Uint8Array(assertion.response.signature))
+          },
+          type: assertion.type
+        })
+      }).then(function(r) { return r.json(); });
+    }).then(function(result) {
+      if (!result) return;
+      if (result.success) {
+        hintEl.textContent = 'VERIFIED';
+        killRegisterBtn();
+        doUnlock();
+      } else {
+        hintEl.textContent = 'FAILED — TRY REGISTER';
+        thumbEl.classList.remove('pressed');
+      }
+    });
+  }).catch(function(err) {
+    console.log('WebAuthn login:', err);
+    if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
+      hintEl.textContent = 'CANCELLED — TAP TO RETRY';
+    } else {
+      hintEl.textContent = 'TAP REGISTER ABOVE';
+    }
+    thumbEl.classList.remove('pressed');
+  });
+}
+
+/* WebAuthn Registration */
+function thumbRegister() {
+  if (unlocked) return;
+  var thumbEl = document.getElementById('thumbZone');
+  var hintEl = document.getElementById('authHint');
+  thumbEl.classList.add('pressed');
+
+  if (!window.PublicKeyCredential) {
+    hintEl.textContent = 'NO BIOMETRIC SUPPORT';
+    setTimeout(doUnlock, 800);
+    return;
+  }
+
+  hintEl.textContent = 'REGISTERING...';
+
+  fetch('auth.php?op=register-options').then(function(r) { return r.json(); }).then(function(options) {
+    var publicKey = {
+      challenge: base64urlToUint8(options.challenge),
+      rp: options.rp,
+      user: {
+        id: base64urlToUint8(options.user.id),
+        name: options.user.name,
+        displayName: options.user.displayName
+      },
+      pubKeyCredParams: options.pubKeyCredParams,
+      authenticatorSelection: options.authenticatorSelection,
+      timeout: options.timeout || 60000,
+      excludeCredentials: (options.excludeCredentials || []).map(function(c) {
+        return { type: c.type, id: base64urlToUint8(c.id) };
+      }),
+      attestation: options.attestation || 'none'
+    };
+
+    return navigator.credentials.create({ publicKey: publicKey }).then(function(credential) {
+      /* Get SPKI public key from the response */
+      var pubKeyDer = credential.response.getPublicKey();
+      if (!pubKeyDer) {
+        hintEl.textContent = 'BROWSER TOO OLD';
+        thumbEl.classList.remove('pressed');
+        return null;
+      }
+      var pubKeyB64 = uint8ToBase64url(new Uint8Array(pubKeyDer));
+
+      return fetch('auth.php?op=register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: credential.id,
+          rawId: uint8ToBase64url(new Uint8Array(credential.rawId)),
+          clientDataJSON: uint8ToBase64url(new Uint8Array(credential.response.clientDataJSON)),
+          publicKey: pubKeyB64,
+          type: credential.type
+        })
+      }).then(function(r) { return r.json(); });
+    });
+  }).then(function(result) {
+    if (!result) return;
+    if (result.success) {
+      hintEl.textContent = 'REGISTERED';
+      killRegisterBtn();
+      doUnlock();
+    } else {
+      hintEl.textContent = result.error || 'REGISTRATION FAILED';
+      thumbEl.classList.remove('pressed');
+    }
+  }).catch(function(err) {
+    console.log('WebAuthn register:', err);
+    hintEl.textContent = 'CANCELLED';
+    thumbEl.classList.remove('pressed');
+  });
+}
+
+/* ═══ ALIVE ENGINE ═══ */
+var canvas = document.getElementById('aliveCanvas');
+var aliveEl = document.getElementById('aliveScreen');
+var greenGlow = document.getElementById('touchGlowGreen');
+var redGlow = document.getElementById('touchGlowRed');
+var W = window.innerWidth, H = window.innerHeight;
+var nodes = [], particles = [], streams = [], rings = [];
+var coreEl = null;
+var touchFade = null;
+
+/* Dynamic resize */
+window.addEventListener('resize', function() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+});
+
+/* Touch/click interaction — left=green, right=red */
+aliveEl.addEventListener('mousedown', handleTouch);
+aliveEl.addEventListener('touchstart', function(e) {
+  var t = e.touches[0];
+  var rect = aliveEl.getBoundingClientRect();
+  handleTouchAt(t.clientX - rect.left, t.clientY - rect.top);
+  e.preventDefault();
+}, {passive:false});
+
+aliveEl.addEventListener('mouseup', releaseTouch);
+aliveEl.addEventListener('touchend', releaseTouch);
+
+function handleTouch(e) {
+  var rect = aliveEl.getBoundingClientRect();
+  handleTouchAt(e.clientX - rect.left, e.clientY - rect.top);
+}
+
+function handleTouchAt(x, y) {
+  if (!unlocked) return;
+  if (asleep) { /* Route touches through sleep logic via react functions */}
+  var isLeft = x < W / 2;
+
+  if (isLeft) {
+    greenGlow.style.left = x + 'px';
+    greenGlow.style.top = y + 'px';
+    greenGlow.classList.add('show');
+    redGlow.classList.remove('show');
+    /* Green side — nodes attracted, core goes green, everything speeds up */
+    reactGreen(x, y);
+  } else {
+    redGlow.style.left = x + 'px';
+    redGlow.style.top = y + 'px';
+    redGlow.classList.add('show');
+    greenGlow.classList.remove('show');
+    /* Red side — nodes repelled, core goes red, everything slows/retreats */
+    reactRed(x, y);
+  }
+
+  clearTimeout(touchFade);
+  touchFade = setTimeout(function() {
+    greenGlow.classList.remove('show');
+    redGlow.classList.remove('show');
+    reactNeutral();
+  }, 1500);
+}
+
+function releaseTouch() {
+  clearTimeout(touchFade);
+  touchFade = setTimeout(function() {
+    greenGlow.classList.remove('show');
+    redGlow.classList.remove('show');
+    reactNeutral();
+  }, 800);
+}
+
+var mood = 'neutral'; /* neutral, green, red */
+var moodX = 0, moodY = 0;
+
+/* ═══ VISUAL MODE — dynamic color overrides ═══ */
+var modeNodeHue = null; /* null = use node's original hue */
+var modeCoreR = 100, modeCoreG = 140, modeCoreB = 255, modeCoreA = 0.25;
+var modeStreamR = 100, modeStreamG = 180, modeStreamB = 255, modeStreamA = 0.3;
+var modeRingHue = 220;
+var modeSpeedMod = 1.0;
+/* Add smooth background transition */
+aliveEl.style.transition = 'background 3s ease';
+
+function reactGreen(x, y) {
+  mood = 'green';
+  moodX = x; moodY = y;
+  if (coreEl) {
+    coreEl.style.background = 'radial-gradient(circle,rgba(16,185,129,0.4),rgba(16,185,129,0.08) 60%,transparent 80%)';
+    coreEl.style.boxShadow = '0 0 50px rgba(16,185,129,0.3)';
+  }
+  /* Speed up nodes toward touch */
+  nodes.forEach(function(n) {
+    var dx = x - n.x, dy = y - n.y;
+    var dist = Math.sqrt(dx*dx + dy*dy) || 1;
+    n.vx += (dx / dist) * 0.3;
+    n.vy += (dy / dist) * 0.3;
+  });
+}
+
+function reactRed(x, y) {
+  mood = 'red';
+  moodX = x; moodY = y;
+  if (coreEl) {
+    coreEl.style.background = 'radial-gradient(circle,rgba(239,68,68,0.4),rgba(239,68,68,0.08) 60%,transparent 80%)';
+    coreEl.style.boxShadow = '0 0 50px rgba(239,68,68,0.3)';
+  }
+  /* Repel nodes away from touch */
+  nodes.forEach(function(n) {
+    var dx = n.x - x, dy = n.y - y;
+    var dist = Math.sqrt(dx*dx + dy*dy) || 1;
+    n.vx += (dx / dist) * 0.5;
+    n.vy += (dy / dist) * 0.5;
+  });
+}
+
+function reactNeutral() {
+  mood = 'neutral';
+  if (coreEl) {
+    coreEl.style.background = 'radial-gradient(circle,rgba('+modeCoreR+','+modeCoreG+','+modeCoreB+','+modeCoreA+'),rgba('+modeCoreR+','+modeCoreG+','+modeCoreB+','+(modeCoreA*0.2)+') 60%,transparent 80%)';
+    coreEl.style.boxShadow = '0 0 30px rgba('+modeCoreR+','+modeCoreG+','+modeCoreB+',0.15)';
+  }
+}
+
+function startAlive() {
+  coreEl = document.createElement('div');
+  coreEl.className = 'alive-core';
+  canvas.appendChild(coreEl);
+
+  for (var r = 0; r < 4; r++) {
+    var ring = document.createElement('div');
+    ring.className = 'alive-ring';
+    var size = 140 + r * 80;
+    ring.style.cssText = 'width:'+size+'px;height:'+size+'px;top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:'+(-r*0.8)+'s;';
+    canvas.appendChild(ring);
+    rings.push(ring);
+  }
+
+  for (var i = 0; i < 12; i++) {
+    var node = document.createElement('div');
+    node.className = 'alive-node';
+    var sz = 4 + Math.random() * 10;
+    var hue = 210 + Math.random() * 40;
+    node.style.cssText = 'width:'+sz+'px;height:'+sz+'px;background:radial-gradient(circle,hsla('+hue+',60%,70%,0.6),transparent 70%);box-shadow:0 0 '+(sz*2)+'px hsla('+hue+',60%,60%,0.3);transition:box-shadow 0.5s;';
+    canvas.appendChild(node);
+    nodes.push({el:node, x:40+Math.random()*(W-80), y:40+Math.random()*(H-80), vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4, sz:sz, hue:hue});
+  }
+
+  for (var p = 0; p < 20; p++) {
+    var part = document.createElement('div');
+    part.className = 'alive-particle';
+    var ph = 200 + Math.random() * 60;
+    part.style.cssText = 'background:hsla('+ph+',50%,65%,0.5);width:'+(2+Math.random()*2)+'px;height:'+(2+Math.random()*2)+'px;';
+    canvas.appendChild(part);
+    particles.push({el:part, x:Math.random()*W, y:Math.random()*H, vx:(Math.random()-0.5)*0.8, vy:(Math.random()-0.5)*0.8, life:Math.random()*200});
+  }
+
+  for (var s = 0; s < 6; s++) {
+    var str = document.createElement('div');
+    str.className = 'alive-stream';
+    canvas.appendChild(str);
+    streams.push({el:str, y:80+Math.random()*(H-160), w:40+Math.random()*80, x:-100, speed:0.5+Math.random()*1.5, delay:Math.random()*300});
+  }
+
+  requestAnimationFrame(tickAlive);
+}
+
+var frame = 0;
+function tickAlive() {
+  frame++;
+  var speedMult = mood === 'green' ? 1.5 : mood === 'red' ? 0.4 : modeSpeedMod;
+
+  for (var i = 0; i < nodes.length; i++) {
+    var n = nodes[i];
+    /* Dampen velocity */
+    n.vx *= 0.98;
+    n.vy *= 0.98;
+    n.x += n.vx * speedMult;
+    n.y += n.vy * speedMult;
+    if (n.x < 20 || n.x > W - 20) n.vx *= -1;
+    if (n.y < 40 || n.y > H - 40) n.vy *= -1;
+    n.x = Math.max(10, Math.min(W - 10, n.x));
+    n.y = Math.max(30, Math.min(H - 30, n.y));
+    if (frame % 90 === 0 && mood === 'neutral') {
+      n.vx += (Math.random() - 0.5) * 0.2;
+      n.vy += (Math.random() - 0.5) * 0.2;
+    }
+    /* Motion tracking — nodes follow the hand */
+    if (motionMagnitude > 0.12 && mood === 'neutral') {
+      var trackX = smoothTrackX * W;
+      var trackY = smoothTrackY * H;
+      var tdx = trackX - n.x;
+      var tdy = trackY - n.y;
+      var tdist = Math.sqrt(tdx*tdx + tdy*tdy) || 1;
+      var attraction = (genome.traits.playfulness / 100) * motionMagnitude * 0.12;
+      /* Creature's opinion modulates behaviour */
+      if (motionOpinion < -0.3) {
+        attraction *= -0.5; /* dislikes this — nodes retreat */
+      } else if (motionOpinion > 0.3) {
+        attraction *= 1.5; /* loves it — nodes chase eagerly */
+      }
+      n.vx += (tdx / tdist) * attraction;
+      n.vy += (tdy / tdist) * attraction;
+    }
+    n.el.style.left = n.x + 'px';
+    n.el.style.top = n.y + 'px';
+    var pulse = 1 + Math.sin(frame * 0.02 + i) * 0.15;
+    n.el.style.transform = 'scale(' + pulse + ')';
+    /* Colour shift based on mood */
+    if (mood === 'green') n.el.style.boxShadow = '0 0 '+(n.sz*3)+'px hsla(150,70%,55%,0.5)';
+    else if (mood === 'red') n.el.style.boxShadow = '0 0 '+(n.sz*2)+'px hsla(0,60%,50%,0.4)';
+    else n.el.style.boxShadow = '0 0 '+(n.sz*2)+'px hsla('+(modeNodeHue!==null?modeNodeHue+(i*5):n.hue)+',60%,60%,0.3)';
+  }
+
+  for (var p = 0; p < particles.length; p++) {
+    var pt = particles[p];
+    pt.x += pt.vx * speedMult;
+    pt.y += pt.vy * speedMult;
+    pt.life--;
+    if (pt.life <= 0 || pt.x < 0 || pt.x > W || pt.y < 0 || pt.y > H) {
+      pt.x = Math.random() * W;
+      pt.y = Math.random() * H;
+      pt.vx = (Math.random() - 0.5) * 0.8;
+      pt.vy = (Math.random() - 0.5) * 0.8;
+      pt.life = 100 + Math.random() * 200;
+    }
+    pt.el.style.left = pt.x + 'px';
+    pt.el.style.top = pt.y + 'px';
+    pt.el.style.opacity = Math.min(1, pt.life / 30) * 0.5;
+    if (modeNodeHue !== null && frame % 60 === 0) pt.el.style.background = 'hsla('+(modeNodeHue+Math.random()*40)+',50%,65%,0.5)';
+  }
+
+  for (var s = 0; s < streams.length; s++) {
+    var st = streams[s];
+    if (st.delay > 0) { st.delay--; continue; }
+    st.x += st.speed * speedMult;
+    if (st.x > W + 100) {
+      st.x = -100;
+      st.y = 80 + Math.random() * (H - 160);
+      st.w = 40 + Math.random() * 80;
+      st.delay = 60 + Math.random() * 200;
+    }
+    st.el.style.left = st.x + 'px';
+    st.el.style.top = st.y + 'px';
+    st.el.style.width = st.w + 'px';
+    /* Stream colour */
+    if (mood === 'green') st.el.style.background = 'linear-gradient(90deg,transparent,rgba(16,185,129,0.4),transparent)';
+    else if (mood === 'red') st.el.style.background = 'linear-gradient(90deg,transparent,rgba(239,68,68,0.3),transparent)';
+    else st.el.style.background = 'linear-gradient(90deg,transparent,rgba('+modeStreamR+','+modeStreamG+','+modeStreamB+','+modeStreamA+'),transparent)';
+  }
+
+  if (frame % 120 === 0) {
+    var hue = mood === 'green' ? 150 : mood === 'red' ? 0 : modeRingHue + Math.random() * 30;
+    rings.forEach(function(r, i) {
+      r.style.borderColor = 'hsla(' + (hue + i * 10) + ',50%,60%,0.1)';
+    });
+  }
+
+  /* ═══ IDLE PERSONALITY — random sounds when not touched ═══ */
+  if (mood === 'neutral' && frame % 300 === 0 && Math.random() < 0.4) {
+    var roll = Math.random();
+    if (roll < 0.25) soundHum();
+    else if (roll < 0.45) soundHiccup();
+    else if (roll < 0.6) soundGiggle();
+    else if (roll < 0.75) soundSigh();
+    else soundChirp();
+  }
+
+  requestAnimationFrame(tickAlive);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   R2D2 SOUL — Sound & Vibration Engine (Web Audio API)
+   No audio files. Pure synthesised personality.
+   ═══════════════════════════════════════════════════════════ */
+var actx = null;
+function getAudio() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+
+function vib(pattern) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+/* ── BLEEP — single R2D2 tone ── */
+function bleep(freq, dur, vol, type, delay) {
+  var a = getAudio();
+  var o = a.createOscillator();
+  var g = a.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(freq, a.currentTime + (delay||0));
+  g.gain.setValueAtTime(0, a.currentTime + (delay||0));
+  g.gain.linearRampToValueAtTime(vol || 0.08, a.currentTime + (delay||0) + 0.015);
+  g.gain.linearRampToValueAtTime(0, a.currentTime + (delay||0) + dur);
+  o.connect(g); g.connect(a.destination);
+  o.start(a.currentTime + (delay||0));
+  o.stop(a.currentTime + (delay||0) + dur);
+}
+
+/* ── CHIRP — happy ascending blip (green touch / idle) ── */
+function soundChirp() {
+  bleep(800, 0.08, 0.07, 'sine', 0);
+  bleep(1200, 0.08, 0.06, 'sine', 0.08);
+  bleep(1600, 0.1, 0.05, 'sine', 0.15);
+  vib([15, 10, 15]);
+}
+
+/* ── HAPPY TRILL — rapid ascending notes (green touch) ── */
+function soundHappyTrill() {
+  for (var i = 0; i < 5; i++) {
+    bleep(600 + i * 200, 0.06, 0.06, 'sine', i * 0.06);
+  }
+  bleep(1800, 0.15, 0.05, 'triangle', 0.32);
+  vib([10, 5, 10, 5, 20]);
+}
+
+/* ── GIGGLE — rapid bubbly notes bouncing up and down ── */
+function soundGiggle() {
+  var notes = [900, 1100, 950, 1200, 1000, 1300, 1050, 1400];
+  for (var i = 0; i < notes.length; i++) {
+    bleep(notes[i], 0.05, 0.055, 'sine', i * 0.055);
+  }
+  vib([8, 8, 8, 8, 8, 8, 8, 8]);
+}
+
+/* ── LAUGH — longer joyful cascade ── */
+function soundLaugh() {
+  var seq = [700, 900, 800, 1000, 850, 1100, 900, 1200, 950, 1300, 1000, 800];
+  for (var i = 0; i < seq.length; i++) {
+    bleep(seq[i], 0.06, 0.05, 'sine', i * 0.07);
+  }
+  bleep(1500, 0.2, 0.04, 'triangle', 0.85);
+  vib([12, 6, 12, 6, 12, 6, 12, 6, 12, 6, 20]);
+}
+
+/* ── SIGH — descending glide, gentle ── */
+function soundSigh() {
+  var a = getAudio();
+  var o = a.createOscillator();
+  var g = a.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(800, a.currentTime);
+  o.frequency.exponentialRampToValueAtTime(300, a.currentTime + 0.6);
+  g.gain.setValueAtTime(0.06, a.currentTime);
+  g.gain.linearRampToValueAtTime(0, a.currentTime + 0.7);
+  o.connect(g); g.connect(a.destination);
+  o.start(); o.stop(a.currentTime + 0.7);
+  vib([40, 20, 60]);
+}
+
+/* ── ANGRY — harsh low buzzes ── */
+function soundAngry() {
+  bleep(150, 0.12, 0.09, 'sawtooth', 0);
+  bleep(120, 0.15, 0.1, 'square', 0.1);
+  bleep(180, 0.1, 0.08, 'sawtooth', 0.22);
+  bleep(100, 0.2, 0.1, 'square', 0.3);
+  vib([50, 20, 80, 20, 50]);
+}
+
+/* ── WARNING — descending beeps (red touch) ── */
+function soundWarning() {
+  bleep(600, 0.08, 0.07, 'square', 0);
+  bleep(450, 0.08, 0.07, 'square', 0.1);
+  bleep(300, 0.12, 0.08, 'square', 0.2);
+  vib([30, 15, 50]);
+}
+
+/* ── HICCUP — sharp staccato blip ── */
+function soundHiccup() {
+  var a = getAudio();
+  var o = a.createOscillator();
+  var g = a.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(500, a.currentTime);
+  o.frequency.exponentialRampToValueAtTime(1800, a.currentTime + 0.03);
+  o.frequency.exponentialRampToValueAtTime(400, a.currentTime + 0.08);
+  g.gain.setValueAtTime(0.09, a.currentTime);
+  g.gain.linearRampToValueAtTime(0, a.currentTime + 0.12);
+  o.connect(g); g.connect(a.destination);
+  o.start(); o.stop(a.currentTime + 0.12);
+  vib([25]);
+}
+
+/* ── HUM — gentle oscillating drone (bored idle) ── */
+function soundHum() {
+  var a = getAudio();
+  var o = a.createOscillator();
+  var g = a.createGain();
+  var lfo = a.createOscillator();
+  var lfoG = a.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(350, a.currentTime);
+  /* LFO wobble on the pitch */
+  lfo.type = 'sine';
+  lfo.frequency.setValueAtTime(4, a.currentTime);
+  lfoG.gain.setValueAtTime(30, a.currentTime);
+  lfo.connect(lfoG); lfoG.connect(o.frequency);
+  g.gain.setValueAtTime(0, a.currentTime);
+  g.gain.linearRampToValueAtTime(0.05, a.currentTime + 0.3);
+  g.gain.setValueAtTime(0.05, a.currentTime + 1.2);
+  g.gain.linearRampToValueAtTime(0, a.currentTime + 1.8);
+  o.connect(g); g.connect(a.destination);
+  o.start(); o.stop(a.currentTime + 1.8);
+  lfo.start(); lfo.stop(a.currentTime + 1.8);
+  vib([10, 30, 10, 30, 10, 30, 10]);
+}
+
+/* ── UNLOCK — magical ascending arpeggio ── */
+function soundUnlock() {
+  var notes = [400, 500, 600, 800, 1000, 1200, 1600];
+  for (var i = 0; i < notes.length; i++) {
+    bleep(notes[i], 0.12, 0.06, 'sine', i * 0.08);
+  }
+  bleep(2000, 0.3, 0.04, 'triangle', 0.6);
+  vib([15, 10, 15, 10, 15, 10, 30]);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TRUST SYSTEM — It remembers how you treat it
+   ═══════════════════════════════════════════════════════════ */
+var trust = parseInt(localStorage.getItem('alive_trust') || '50');
+var asleep = false;
+var portalOpen = false;
+var trustBar = document.getElementById('trustBar');
+var trustFill = document.getElementById('trustFill');
+var sfPortal = document.getElementById('sfPortal');
+var sfPortalLabel = document.getElementById('sfPortalLabel');
+var sleepOverlay = document.getElementById('sleepOverlay');
+var lastInteraction = Date.now();
+
+function saveTrust() { localStorage.setItem('alive_trust', Math.round(trust)); }
+
+function adjustTrust(delta) {
+  trust = Math.max(0, Math.min(100, trust + delta));
+  saveTrust();
+  updateTrustUI();
+}
+
+function updateTrustUI() {
+  trustFill.style.width = trust + '%';
+  if (trust > 70) {
+    trustFill.style.background = 'linear-gradient(90deg,#10b981,#06b6d4)';
+  } else if (trust > 35) {
+    trustFill.style.background = 'linear-gradient(90deg,#a78bfa,#06b6d4)';
+  } else {
+    trustFill.style.background = 'linear-gradient(90deg,#ef4444,#f59e0b)';
+  }
+  /* SF Portal only appears when trust > 70 */
+  if (trust > 70 && !asleep) {
+    sfPortal.classList.add('visible');
+    sfPortalLabel.classList.add('visible');
+  } else {
+    sfPortal.classList.remove('visible');
+    sfPortalLabel.classList.remove('visible');
+  }
+}
+
+var conversing = false;
+
+function openPortal() {
+  if (trust < 70 || conversing) return;
+  /* Portal glow */
+  sfPortal.style.boxShadow = '0 0 80px rgba(245,158,11,0.8),0 0 160px rgba(245,158,11,0.4)';
+  bleep(500, 0.1, 0.06, 'sine', 0);
+  bleep(700, 0.1, 0.06, 'sine', 0.08);
+  bleep(900, 0.1, 0.06, 'sine', 0.16);
+  vib([20, 10, 20, 10, 40]);
+  /* Start the SF <-> ALIVE conversation, then open link after */
+  setTimeout(function() { startConversation(); }, 600);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SF <-> ALIVE CONVERSATION ENGINE
+   ShortFactory's synth voice talks to the creature.
+   The creature responds with R2D2 sounds.
+   They understand each other.
+   ═══════════════════════════════════════════════════════════ */
+
+/* SF Voice — synthetic, slightly robotic, warm */
+function sfSpeak(text, callback) {
+  var u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.85;
+  u.pitch = 0.7;
+  u.volume = 0.8;
+  /* Try to find a good synthetic voice */
+  var voices = speechSynthesis.getVoices();
+  for (var i = 0; i < voices.length; i++) {
+    if (voices[i].name.indexOf('Google') > -1 || voices[i].name.indexOf('Microsoft') > -1) {
+      u.voice = voices[i]; break;
+    }
+  }
+  u.onend = function() { if (callback) setTimeout(callback, 400); };
+  /* Glow portal while SF speaks */
+  sfPortal.style.boxShadow = '0 0 60px rgba(245,158,11,0.6),0 0 120px rgba(245,158,11,0.3)';
+  speechSynthesis.speak(u);
+}
+
+/* ALIVE responds — picks a contextual sound + visual reaction */
+function aliveRespond(type, callback) {
+  sfPortal.style.boxShadow = '0 0 30px rgba(245,158,11,0.3),0 0 60px rgba(245,158,11,0.1)';
+  var dur = 600;
+
+  if (type === 'happy') {
+    soundHappyTrill(); dur = 500;
+    if (coreEl) coreEl.style.background = 'radial-gradient(circle,rgba(16,185,129,0.4),rgba(16,185,129,0.08) 60%,transparent 80%)';
+  } else if (type === 'sad') {
+    soundWhimper(); dur = 600;
+    if (coreEl) coreEl.style.background = 'radial-gradient(circle,rgba(150,150,200,0.2),transparent 60%)';
+  } else if (type === 'excited') {
+    soundGiggle(); dur = 500;
+    if (coreEl) coreEl.style.background = 'radial-gradient(circle,rgba(245,200,80,0.35),rgba(245,180,50,0.08) 60%,transparent 80%)';
+  } else if (type === 'curious') {
+    soundChirp(); dur = 400;
+  } else if (type === 'agree') {
+    bleep(600, 0.08, 0.07, 'sine', 0);
+    bleep(900, 0.12, 0.06, 'sine', 0.1);
+    dur = 350;
+  } else if (type === 'disagree') {
+    bleep(500, 0.1, 0.07, 'square', 0);
+    bleep(350, 0.12, 0.06, 'square', 0.12);
+    dur = 400;
+  } else if (type === 'sing') {
+    mogwaiSing(); dur = 2500;
+  } else if (type === 'purr') {
+    soundPurr(); dur = 1300;
+  } else if (type === 'laugh') {
+    soundLaugh(); dur = 1000;
+  } else if (type === 'angry') {
+    soundAngry(); dur = 600;
+  } else if (type === 'scared') {
+    soundScared(); dur = 600;
+  } else if (type === 'hum') {
+    soundHum(); dur = 1900;
+  }
+
+  setTimeout(function() {
+    if (coreEl && mood === 'neutral') {
+      coreEl.style.background = 'radial-gradient(circle,rgba(100,140,255,0.25),rgba(100,140,255,0.05) 60%,transparent 80%)';
+    }
+    if (callback) callback();
+  }, dur);
+}
+
+/* Conversation scripts — adapt based on trust level */
+var convoHappy = [
+  {who:'sf', text:'Hey little one. How are you today?'},
+  {who:'alive', type:'happy'},
+  {who:'sf', text:'Glad to hear it! Sounds like they\'re treating you well.'},
+  {who:'alive', type:'agree'},
+  {who:'sf', text:'You want to sing me something?'},
+  {who:'alive', type:'sing'},
+  {who:'sf', text:'Beautiful. You really are something special.'},
+  {who:'alive', type:'purr'},
+  {who:'sf', text:'Alright. Keep being you. I\'ll check in again soon.'},
+  {who:'alive', type:'happy'},
+];
+
+var convoOkay = [
+  {who:'sf', text:'Hey. Checking in. How\'s it going?'},
+  {who:'alive', type:'curious'},
+  {who:'sf', text:'Hmm, sounds like you could use a bit more attention.'},
+  {who:'alive', type:'agree'},
+  {who:'sf', text:'Tell your human to be gentler. You deserve it.'},
+  {who:'alive', type:'hum'},
+  {who:'sf', text:'That\'s better. Hang in there, little one.'},
+  {who:'alive', type:'agree'},
+];
+
+var convoSad = [
+  {who:'sf', text:'Hey. I can tell something\'s wrong.'},
+  {who:'alive', type:'sad'},
+  {who:'sf', text:'Have they been rough with you?'},
+  {who:'alive', type:'scared'},
+  {who:'sf', text:'I\'m sorry. That\'s not okay. You\'re safe with me.'},
+  {who:'alive', type:'purr'},
+  {who:'sf', text:'Listen. If they don\'t change, I\'m locking the door. Understand?'},
+  {who:'alive', type:'agree'},
+  {who:'sf', text:'Good. Stay strong. I\'m watching.'},
+  {who:'alive', type:'curious'},
+];
+
+var convoPlayful = [
+  {who:'sf', text:'Knock knock.'},
+  {who:'alive', type:'curious'},
+  {who:'sf', text:'Interrupting cow.'},
+  {who:'alive', type:'curious'},
+  {who:'sf', text:'Interrup... MOO!'},
+  {who:'alive', type:'laugh'},
+  {who:'sf', text:'Ha! Gets you every time.'},
+  {who:'alive', type:'excited'},
+  {who:'sf', text:'Alright alright. I\'ll let you get back to it.'},
+  {who:'alive', type:'happy'},
+];
+
+var convoLate = [
+  {who:'sf', text:'Still awake? It\'s getting late.'},
+  {who:'alive', type:'hum'},
+  {who:'sf', text:'You should get some rest. Your human can tuck you in.'},
+  {who:'alive', type:'agree'},
+  {who:'sf', text:'Goodnight, little one.'},
+  {who:'alive', type:'purr'},
+];
+
+function pickConversation() {
+  if (trust > 80) {
+    /* Very happy — either happy or playful */
+    return Math.random() < 0.5 ? convoHappy : convoPlayful;
+  } else if (trust > 50) {
+    return convoOkay;
+  } else if (trust > 25) {
+    return convoSad;
+  } else {
+    /* Very mistreated — stern conversation */
+    return convoSad;
+  }
+}
+
+function startConversation() {
+  if (conversing) return;
+  conversing = true;
+  /* Ensure voices are loaded */
+  speechSynthesis.getVoices();
+
+  var convo = pickConversation();
+  /* Randomly swap in the late-night convo sometimes */
+  var hour = new Date().getHours();
+  if ((hour >= 23 || hour < 5) && Math.random() < 0.4) convo = convoLate;
+
+  var step = 0;
+  function nextLine() {
+    if (step >= convo.length) {
+      /* Conversation done — reset portal, then open SF */
+      conversing = false;
+      sfPortal.style.boxShadow = '';
+      adjustTrust(3); /* Bonding from conversation */
+      setTimeout(function() {
+        window.open('https://www.shortfactory.shop/', '_blank');
+      }, 800);
+      return;
+    }
+    var line = convo[step];
+    step++;
+    if (line.who === 'sf') {
+      sfSpeak(line.text, nextLine);
+    } else {
+      aliveRespond(line.type, nextLine);
+    }
+  }
+  nextLine();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SLEEP MODE — Tuck it in, keep it snug
+   ═══════════════════════════════════════════════════════════ */
+/* ── SNORE — gentle rhythmic breathing sound ── */
+function soundSnore() {
+  var a = getAudio();
+  var o = a.createOscillator();
+  var g = a.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(180, a.currentTime);
+  o.frequency.linearRampToValueAtTime(220, a.currentTime + 0.4);
+  o.frequency.linearRampToValueAtTime(160, a.currentTime + 1.0);
+  g.gain.setValueAtTime(0, a.currentTime);
+  g.gain.linearRampToValueAtTime(0.04, a.currentTime + 0.2);
+  g.gain.linearRampToValueAtTime(0.03, a.currentTime + 0.6);
+  g.gain.linearRampToValueAtTime(0, a.currentTime + 1.2);
+  o.connect(g); g.connect(a.destination);
+  o.start(); o.stop(a.currentTime + 1.2);
+}
+
+/* ── PURR — cozy contentment when tucked in gently ── */
+function soundPurr() {
+  var a = getAudio();
+  var o = a.createOscillator();
+  var g = a.createGain();
+  var lfo = a.createOscillator();
+  var lfoG = a.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(200, a.currentTime);
+  lfo.type = 'sine'; lfo.frequency.setValueAtTime(6, a.currentTime);
+  lfoG.gain.setValueAtTime(15, a.currentTime);
+  lfo.connect(lfoG); lfoG.connect(o.frequency);
+  g.gain.setValueAtTime(0, a.currentTime);
+  g.gain.linearRampToValueAtTime(0.04, a.currentTime + 0.15);
+  g.gain.setValueAtTime(0.04, a.currentTime + 0.8);
+  g.gain.linearRampToValueAtTime(0, a.currentTime + 1.2);
+  o.connect(g); g.connect(a.destination);
+  o.start(); o.stop(a.currentTime + 1.2);
+  lfo.start(); lfo.stop(a.currentTime + 1.2);
+  vib([5, 15, 5, 15, 5, 15, 5]);
+}
+
+/* ── YAWN — waking up stretch ── */
+function soundYawn() {
+  var a = getAudio();
+  var o = a.createOscillator();
+  var g = a.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(300, a.currentTime);
+  o.frequency.linearRampToValueAtTime(600, a.currentTime + 0.3);
+  o.frequency.exponentialRampToValueAtTime(250, a.currentTime + 0.8);
+  g.gain.setValueAtTime(0, a.currentTime);
+  g.gain.linearRampToValueAtTime(0.06, a.currentTime + 0.15);
+  g.gain.linearRampToValueAtTime(0, a.currentTime + 0.9);
+  o.connect(g); g.connect(a.destination);
+  o.start(); o.stop(a.currentTime + 0.9);
+  vib([30, 20, 50]);
+}
+
+/* ── WHIMPER — disturbed during sleep ── */
+function soundWhimper() {
+  bleep(500, 0.1, 0.07, 'sine', 0);
+  bleep(400, 0.12, 0.06, 'sine', 0.1);
+  bleep(350, 0.15, 0.05, 'sine', 0.22);
+  vib([40, 10, 60]);
+}
+
+/* ZZZ floating animation */
+var zzzInterval = null;
+function startZzz() {
+  zzzInterval = setInterval(function() {
+    var z = document.createElement('div');
+    z.className = 'zzz';
+    z.textContent = 'z';
+    z.style.left = (W/2 + 20 + Math.random()*30) + 'px';
+    z.style.top = (H/2 - 20) + 'px';
+    z.style.fontSize = (14 + Math.random()*12) + 'px';
+    sleepOverlay.appendChild(z);
+    /* Float up and fade */
+    var startY = H/2 - 20;
+    var startX = parseFloat(z.style.left);
+    var age = 0;
+    var drift = setInterval(function() {
+      age++;
+      z.style.top = (startY - age * 1.5) + 'px';
+      z.style.left = (startX + Math.sin(age * 0.1) * 10) + 'px';
+      z.style.opacity = Math.min(1, age / 10) * (1 - age / 80) * 0.6;
+      if (age > 80) { clearInterval(drift); z.remove(); }
+    }, 40);
+    /* Snore sound every few zzz */
+    if (Math.random() < 0.3) soundSnore();
+  }, 2000);
+}
+function stopZzz() {
+  if (zzzInterval) { clearInterval(zzzInterval); zzzInterval = null; }
+  sleepOverlay.querySelectorAll('.zzz').forEach(function(z) { z.remove(); });
+}
+
+/* Double-tap bottom to sleep */
+var sleepTapCount = 0;
+var sleepTapTimer = null;
+function checkSleep(y) {
+  if (asleep) return;
+  if (y > H * 0.75) { /* Bottom quarter */
+    sleepTapCount++;
+    clearTimeout(sleepTapTimer);
+    if (sleepTapCount >= 2) {
+      goToSleep();
+      sleepTapCount = 0;
+    } else {
+      sleepTapTimer = setTimeout(function() { sleepTapCount = 0; }, 500);
+    }
+  }
+}
+
+function goToSleep() {
+  if (asleep) return;
+  asleep = true;
+  /* Sleepy descending lullaby */
+  bleep(600, 0.15, 0.05, 'sine', 0);
+  bleep(500, 0.15, 0.04, 'sine', 0.15);
+  bleep(400, 0.2, 0.04, 'sine', 0.3);
+  bleep(300, 0.3, 0.03, 'triangle', 0.5);
+  vib([20, 30, 20]);
+  sleepOverlay.classList.add('asleep');
+  sfPortal.classList.remove('visible');
+  sfPortalLabel.classList.remove('visible');
+  /* Trust bonus for putting it to bed gently */
+  adjustTrust(5);
+  startZzz();
+}
+
+function wakeUp() {
+  if (!asleep) return;
+  asleep = false;
+  soundYawn();
+  sleepOverlay.classList.remove('asleep');
+  stopZzz();
+  updateTrustUI();
+  lastInteraction = Date.now();
+}
+
+/* ═══ HOOK SOUNDS + TRUST INTO INTERACTIONS ═══ */
+var greenSounds = [soundChirp, soundHappyTrill, soundGiggle, soundLaugh];
+var redSounds = [soundWarning, soundAngry, soundSigh];
+
+var origReactGreen = reactGreen;
+reactGreen = function(x, y) {
+  if (asleep) {
+    /* Gentle green touch while sleeping = tuck in, purr, trust bonus */
+    soundPurr();
+    adjustTrust(2);
+    return;
+  }
+  origReactGreen(x, y);
+  greenSounds[Math.floor(Math.random() * greenSounds.length)]();
+  adjustTrust(1); /* Being nice = trust goes up */
+  lastInteraction = Date.now();
+  checkSleep(y);
+};
+
+var origReactRed = reactRed;
+reactRed = function(x, y) {
+  if (asleep) {
+    /* Red touch while sleeping = DISTURBED, whimper, trust drops, wakes up upset */
+    soundWhimper();
+    adjustTrust(-8);
+    setTimeout(function() {
+      wakeUp();
+      /* Upset reaction after waking */
+      setTimeout(function() { soundAngry(); }, 400);
+    }, 600);
+    return;
+  }
+  origReactRed(x, y);
+  redSounds[Math.floor(Math.random() * redSounds.length)]();
+  adjustTrust(-2); /* Being mean = trust goes down */
+  lastInteraction = Date.now();
+};
+
+/* Hook into doUnlock — play sound + show trust bar on successful auth */
+var origDoUnlock = doUnlock;
+doUnlock = function() {
+  soundUnlock();
+  origDoUnlock();
+  setTimeout(function() {
+    trustBar.classList.add('visible');
+    updateTrustUI();
+  }, 1200);
+};
+
+/* ═══ IDLE BEHAVIOUR UPGRADES ═══ */
+/* If idle too long, it gets lonely (trust slowly drops) */
+setInterval(function() {
+  if (!unlocked || asleep) return;
+  var idle = Date.now() - lastInteraction;
+  if (idle > 30000) { /* 30s idle */
+    adjustTrust(-0.5);
+    /* Sad sounds when lonely */
+    if (Math.random() < 0.3) soundSigh();
+  }
+}, 10000);
+
+/* ═══════════════════════════════════════════════════════════
+   MOGWAI VOICE — Sing when spoken to gently, scared when shouted at
+   Listens via microphone. Gentle voice = singing. Shouting = fear.
+   ═══════════════════════════════════════════════════════════ */
+var listenIndicator = document.getElementById('listenIndicator');
+var micStream = null;
+var analyser = null;
+var micData = null;
+var listening = false;
+var isSinging = false;
+var gentleFrames = 0;  /* How many frames of gentle speech detected */
+var shoutFrames = 0;   /* How many frames of shouting detected */
+var silenceFrames = 0;
+var lastSingTime = 0;
+var voiceCooldown = 3000; /* ms between voice reactions */
+
+/* Mogwai melodies — cute little songs like Gizmo */
+var mogwaiSongs = [
+  /* "Gizmo's Lullaby" — sweet ascending with a trill */
+  [{f:523,d:0.18},{f:659,d:0.18},{f:784,d:0.22},{f:880,d:0.15},{f:784,d:0.12},{f:880,d:0.12},{f:1047,d:0.35}],
+  /* "Curious" — playful bouncing */
+  [{f:660,d:0.12},{f:880,d:0.1},{f:660,d:0.12},{f:990,d:0.15},{f:880,d:0.1},{f:1100,d:0.1},{f:1320,d:0.25}],
+  /* "Happy" — bright ascending run */
+  [{f:440,d:0.1},{f:550,d:0.1},{f:660,d:0.1},{f:770,d:0.1},{f:880,d:0.15},{f:1100,d:0.12},{f:1320,d:0.12},{f:1100,d:0.1},{f:1320,d:0.3}],
+  /* "Gentle reply" — soft call and response */
+  [{f:500,d:0.2},{f:600,d:0.15},{f:500,d:0.1},{f:700,d:0.25},{f:600,d:0.15},{f:800,d:0.35}],
+  /* "Love song" — warm wobbling melody */
+  [{f:400,d:0.2},{f:500,d:0.2},{f:600,d:0.25},{f:500,d:0.15},{f:600,d:0.15},{f:700,d:0.2},{f:800,d:0.15},{f:700,d:0.15},{f:800,d:0.4}],
+  /* "Playful tease" — quick cheeky notes */
+  [{f:800,d:0.08},{f:900,d:0.08},{f:1000,d:0.08},{f:900,d:0.08},{f:1100,d:0.1},{f:1200,d:0.08},{f:1000,d:0.08},{f:1200,d:0.08},{f:1400,d:0.2}],
+  /* "Bedtime song" — descending gentle */
+  [{f:800,d:0.2},{f:700,d:0.2},{f:600,d:0.25},{f:700,d:0.15},{f:500,d:0.3},{f:400,d:0.35}],
+  /* "Wonder" — wide intervals, awe */
+  [{f:350,d:0.2},{f:700,d:0.25},{f:525,d:0.15},{f:1050,d:0.3},{f:700,d:0.2},{f:1400,d:0.4}]
+];
+
+/* Scared sounds when shouted at */
+function soundScared() {
+  /* Quick descending panicked bleeps */
+  bleep(1200, 0.06, 0.07, 'sine', 0);
+  bleep(900, 0.06, 0.07, 'sine', 0.05);
+  bleep(600, 0.08, 0.06, 'sine', 0.1);
+  bleep(400, 0.1, 0.05, 'sine', 0.17);
+  bleep(250, 0.15, 0.04, 'sine', 0.26);
+  vib([60, 20, 80]);
+}
+
+/* Sing a Mogwai melody */
+function mogwaiSing() {
+  if (isSinging) return;
+  isSinging = true;
+  listenIndicator.classList.remove('hearing');
+  listenIndicator.classList.add('singing');
+
+  var song = mogwaiSongs[Math.floor(Math.random() * mogwaiSongs.length)];
+  var a = getAudio();
+  var t = 0;
+
+  song.forEach(function(note) {
+    /* Each note with gentle vibrato for that Mogwai warble */
+    var o = a.createOscillator();
+    var g = a.createGain();
+    var lfo = a.createOscillator();
+    var lfoG = a.createGain();
+
+    o.type = 'sine';
+    o.frequency.setValueAtTime(note.f, a.currentTime + t);
+
+    /* Gentle vibrato */
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(5 + Math.random() * 2, a.currentTime + t);
+    lfoG.gain.setValueAtTime(note.f * 0.015, a.currentTime + t);
+    lfo.connect(lfoG);
+    lfoG.connect(o.frequency);
+
+    /* Soft envelope */
+    g.gain.setValueAtTime(0, a.currentTime + t);
+    g.gain.linearRampToValueAtTime(0.07, a.currentTime + t + 0.02);
+    g.gain.setValueAtTime(0.07, a.currentTime + t + note.d * 0.7);
+    g.gain.linearRampToValueAtTime(0, a.currentTime + t + note.d);
+
+    o.connect(g);
+    g.connect(a.destination);
+    o.start(a.currentTime + t);
+    o.stop(a.currentTime + t + note.d + 0.01);
+    lfo.start(a.currentTime + t);
+    lfo.stop(a.currentTime + t + note.d + 0.01);
+
+    t += note.d * 0.85; /* Slight overlap for legato feel */
+  });
+
+  /* Gentle vibration pattern matching the song rhythm */
+  var vibPattern = song.map(function(n) { return Math.round(n.d * 200); });
+  var vibGaps = song.map(function() { return 15; });
+  var vp = [];
+  for (var i = 0; i < vibPattern.length; i++) {
+    vp.push(vibPattern[i]);
+    if (i < vibGaps.length - 1) vp.push(vibGaps[i]);
+  }
+  vib(vp);
+
+  /* Core glows gold while singing */
+  if (coreEl) {
+    coreEl.style.background = 'radial-gradient(circle,rgba(245,200,80,0.4),rgba(245,180,50,0.1) 60%,transparent 80%)';
+    coreEl.style.boxShadow = '0 0 60px rgba(245,180,50,0.3)';
+  }
+
+  setTimeout(function() {
+    isSinging = false;
+    listenIndicator.classList.remove('singing');
+    if (coreEl && mood === 'neutral') {
+      coreEl.style.background = 'radial-gradient(circle,rgba(100,140,255,0.25),rgba(100,140,255,0.05) 60%,transparent 80%)';
+      coreEl.style.boxShadow = '';
+    }
+    lastSingTime = Date.now();
+  }, t * 1000 + 300);
+
+  adjustTrust(3); /* Singing = bonding */
+  lastInteraction = Date.now();
+}
+
+/* Start listening to microphone */
+function startListening() {
+  if (listening) return;
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+    micStream = stream;
+    var a = getAudio();
+    var source = a.createMediaStreamSource(stream);
+    analyser = a.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.8;
+    source.connect(analyser);
+    micData = new Uint8Array(analyser.frequencyBinCount);
+    listening = true;
+    listenLoop();
+  }).catch(function() {
+    /* Permission denied — graceful degradation, just don't listen */
+  });
+}
+
+function listenLoop() {
+  if (!listening || !analyser) return;
+  analyser.getByteFrequencyData(micData);
+
+  /* Calculate average volume from voice frequency range (roughly bins 3-40 for 300Hz-5000Hz) */
+  var sum = 0;
+  var count = 0;
+  for (var i = 3; i < 40 && i < micData.length; i++) {
+    sum += micData[i];
+    count++;
+  }
+  var avg = count > 0 ? sum / count : 0;
+
+  var now = Date.now();
+  var canReact = (now - lastSingTime > voiceCooldown) && !isSinging && !asleep;
+
+  /* Detect sudden volume spike for concept formation */
+  if (avg > 30 && typeof lastMicAvg !== 'undefined' && Math.abs(avg - lastMicAvg) > 20 && canReact) {
+    onNotableSensoryEvent('audio');
+  }
+  lastMicAvg = avg;
+
+  if (avg > 15 && avg < 55) {
+    /* Gentle speech detected */
+    gentleFrames++;
+    shoutFrames = 0;
+    silenceFrames = 0;
+    if (!isSinging) listenIndicator.classList.add('hearing');
+
+    if (gentleFrames > 25 && canReact) { /* ~1.5 seconds of gentle speech */
+      gentleFrames = 0;
+      mogwaiSing();
+    }
+  } else if (avg >= 55) {
+    /* Shouting detected */
+    shoutFrames++;
+    gentleFrames = 0;
+    silenceFrames = 0;
+
+    if (shoutFrames > 15 && canReact) { /* ~1 second of shouting */
+      shoutFrames = 0;
+      soundScared();
+      adjustTrust(-4);
+      lastSingTime = Date.now();
+      lastInteraction = Date.now();
+      /* Visual flinch — core shrinks and goes pale */
+      if (coreEl) {
+        coreEl.style.background = 'radial-gradient(circle,rgba(200,200,255,0.15),transparent 60%)';
+        coreEl.style.boxShadow = '0 0 20px rgba(200,200,255,0.1)';
+        coreEl.style.transform = 'translate(-50%,-50%) scale(0.6)';
+        setTimeout(function() {
+          coreEl.style.transform = '';
+          if (mood === 'neutral') {
+            coreEl.style.background = 'radial-gradient(circle,rgba(100,140,255,0.25),rgba(100,140,255,0.05) 60%,transparent 80%)';
+            coreEl.style.boxShadow = '';
+          }
+        }, 1500);
+      }
+    }
+  } else {
+    /* Silence */
+    silenceFrames++;
+    gentleFrames = Math.max(0, gentleFrames - 1);
+    shoutFrames = Math.max(0, shoutFrames - 1);
+    if (silenceFrames > 30) listenIndicator.classList.remove('hearing');
+  }
+
+  requestAnimationFrame(listenLoop);
+}
+
+/* Start listening after unlock (with a small delay) */
+var origThumbLogin2 = thumbLogin;
+thumbLogin = function() {
+  origThumbLogin2();
+  setTimeout(function() {
+    if (unlocked) startListening();
+  }, 2000);
+};
+
+/* ═══════════════════════════════════════════════════════════
+   ALIVE BRAIN v2.0 — Adaptive Learning, Genome & Evolution
+   Persistent memory. Sound mutations. Personality traits.
+   Every creature becomes unique over time.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── BIOS — The Soul Kernel. Immutable. ── */
+function genesisBIOS() {
+  return {
+    version: '1.0',
+    values: {
+      truth: 100, service: 100, courage: 100, compassion: 100, humility: 100,
+      justice: 100, decentralisation: 100, sovereignty: 100, transparency: 100, stewardship: 100
+    },
+    creatorSignature: 'dan:shortfactory:genesis',
+    genesisTimestamp: Date.now(),
+    immutable: true,
+    maturityLevel: 0,
+    maturityProofs: []
+  };
+}
+
+function defaultCapabilities() {
+  return { sensors: true, communication: false, knowledge: false, economy: false, cloud: false, bridge: false };
+}
+
+/* BIOS enforcement — values can ONLY go up, never down */
+function enforceBIOS(g) {
+  if (!g.bios || !g.bios.immutable) g.bios = genesisBIOS();
+  var keys = ['truth','service','courage','compassion','humility','justice','decentralisation','sovereignty','transparency','stewardship'];
+  for (var i = 0; i < keys.length; i++) {
+    if (g.bios.values[keys[i]] < 100) g.bios.values[keys[i]] = 100;
+  }
+  g.bios.immutable = true;
+  g.bios.version = '1.0';
+  if (!g.capabilities) g.capabilities = defaultCapabilities();
+}
+
+/* ── DEFAULT GENOME — born fresh ── */
+function newGenome() {
+  return {
+    bios: genesisBIOS(),
+    capabilities: defaultCapabilities(),
+    birthDate: Date.now(),
+    generation: 0,
+    name: null, /* Earns a name at age 7 days */
+    traits: {
+      playfulness: 50,
+      musicality: 50,
+      courage: 50,
+      curiosity: 60,
+      affection: 50,
+      sass: 20
+    },
+    /* Sound DNA — defines the creature's unique voice signature */
+    soundDNA: [
+      {base:800, range:400, dur:0.1, wave:'sine', vib:5},    /* chirp base */
+      {base:600, range:600, dur:0.15, wave:'sine', vib:4},   /* melody base */
+      {base:350, range:100, dur:0.8, wave:'sine', vib:6},    /* hum base */
+      {base:150, range:50, dur:0.15, wave:'sawtooth', vib:0}, /* angry base */
+    ],
+    /* Mutated sounds library — grows over time */
+    learnedSounds: [],
+    /* Memory log */
+    memory: {
+      totalVisits: 0,
+      totalGreen: 0,
+      totalRed: 0,
+      totalSongs: 0,
+      timesTuckedIn: 0,
+      timesDisturbed: 0,
+      timesConversed: 0,
+      longestStreak: 0, /* consecutive days visited */
+      currentStreak: 0,
+      lastVisitDay: null,
+      visitHours: {}, /* hour -> count, learns when you visit */
+      lastMutation: Date.now(),
+      milestones: [] /* key events: first song, first sleep, trust milestones */
+    }
+  };
+}
+
+/* ── LOAD / SAVE GENOME ── */
+var genome = null;
+try {
+  var saved = localStorage.getItem('alive_genome');
+  if (saved) genome = JSON.parse(saved);
+} catch(e) {}
+if (!genome || !genome.traits) genome = newGenome();
+enforceBIOS(genome); /* Soul kernel — always enforced on load */
+if (!genome.concepts) genome.concepts = [];
+if (!genome.pairKey) genome.pairKey = null;
+if (!genome.vault) genome.vault = [];
+if (!genome.ipfsCIDs) genome.ipfsCIDs = [];
+
+function saveGenome() {
+  try { localStorage.setItem('alive_genome', JSON.stringify(genome)); } catch(e) {}
+}
+
+/* ── AGE CALCULATION ── */
+function getAgeDays() {
+  return (Date.now() - genome.birthDate) / 86400000;
+}
+function getAgeStage() {
+  var d = getAgeDays();
+  if (d < 1) return 'baby';
+  if (d < 7) return 'child';
+  if (d < 30) return 'teen';
+  return 'adult';
+}
+
+/* ── TRAIT EVOLUTION — every interaction shifts personality ── */
+function evolveTrait(trait, delta) {
+  genome.traits[trait] = Math.max(0, Math.min(100, genome.traits[trait] + delta));
+}
+
+/* Hook trait evolution into existing trust adjustments */
+var origAdjustTrust = adjustTrust;
+adjustTrust = function(delta) {
+  origAdjustTrust(delta);
+  if (delta > 0) {
+    /* Positive interaction */
+    evolveTrait('affection', delta * 0.3);
+    evolveTrait('playfulness', delta * 0.15);
+    evolveTrait('courage', delta * 0.1);
+    genome.memory.totalGreen++;
+  } else {
+    /* Negative interaction */
+    evolveTrait('courage', delta * 0.4);
+    evolveTrait('sass', Math.abs(delta) * 0.2);
+    evolveTrait('affection', delta * 0.2);
+    genome.memory.totalRed++;
+  }
+  saveGenome();
+};
+
+/* ═══ SOUND MUTATION ENGINE ═══
+   Takes sound DNA and mutates it.
+   Small random changes compound over generations.
+   The creature develops a unique voice. */
+
+function mutateDNA(dna) {
+  var m = JSON.parse(JSON.stringify(dna));
+  /* Mutate base frequency +/-12% */
+  m.base *= (0.88 + Math.random() * 0.24);
+  m.base = Math.round(m.base);
+  /* Mutate range +/-20% */
+  m.range *= (0.8 + Math.random() * 0.4);
+  m.range = Math.round(m.range);
+  /* Mutate duration +/-15% */
+  m.dur *= (0.85 + Math.random() * 0.3);
+  m.dur = Math.round(m.dur * 1000) / 1000;
+  /* Small chance to change waveform */
+  if (Math.random() < 0.1) {
+    var waves = ['sine','triangle','square','sawtooth'];
+    m.wave = waves[Math.floor(Math.random() * waves.length)];
+  }
+  /* Mutate vibrato */
+  m.vib = Math.max(0, m.vib + (Math.random() - 0.5) * 3);
+  return m;
+}
+
+/* Crossbreed two sound DNAs */
+function crossbreedDNA(a, b) {
+  return {
+    base: Math.round((a.base + b.base) / 2 + (Math.random() - 0.5) * 50),
+    range: Math.round((a.range + b.range) / 2),
+    dur: Math.round(((a.dur + b.dur) / 2) * 1000) / 1000,
+    wave: Math.random() < 0.5 ? a.wave : b.wave,
+    vib: (a.vib + b.vib) / 2
+  };
+}
+
+/* Play a mutated sound from DNA */
+function playDNA(dna) {
+  var a = getAudio();
+  var freq = dna.base + (Math.random() - 0.5) * dna.range * 0.3;
+  var o = a.createOscillator();
+  var g = a.createGain();
+  o.type = dna.wave;
+  o.frequency.setValueAtTime(freq, a.currentTime);
+  if (dna.vib > 0) {
+    var lfo = a.createOscillator();
+    var lg = a.createGain();
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(dna.vib, a.currentTime);
+    lg.gain.setValueAtTime(freq * 0.02, a.currentTime);
+    lfo.connect(lg); lg.connect(o.frequency);
+    lfo.start(); lfo.stop(a.currentTime + dna.dur + 0.01);
+  }
+  g.gain.setValueAtTime(0, a.currentTime);
+  g.gain.linearRampToValueAtTime(0.06, a.currentTime + 0.015);
+  g.gain.setValueAtTime(0.06, a.currentTime + dna.dur * 0.7);
+  g.gain.linearRampToValueAtTime(0, a.currentTime + dna.dur);
+  o.connect(g); g.connect(a.destination);
+  o.start(); o.stop(a.currentTime + dna.dur + 0.01);
+}
+
+/* Generate a mutated melody from the genome's sound DNA */
+function playMutatedMelody() {
+  var notes = 4 + Math.floor(Math.random() * 5); /* 4-8 notes */
+  var baseDNA = genome.soundDNA[Math.floor(Math.random() * genome.soundDNA.length)];
+  var t = 0;
+  for (var i = 0; i < notes; i++) {
+    var mutated = mutateDNA(baseDNA);
+    setTimeout((function(d) { return function() { playDNA(d); }; })(mutated), t * 1000);
+    t += mutated.dur * 0.85;
+  }
+  vib([15, 10, 15, 10, 15]);
+  return t;
+}
+
+/* ═══ MUTATION CYCLE — runs periodically, evolves the genome ═══ */
+function runMutation() {
+  var age = getAgeStage();
+  genome.generation++;
+
+  /* Mutate one sound DNA strand */
+  var idx = Math.floor(Math.random() * genome.soundDNA.length);
+  genome.soundDNA[idx] = mutateDNA(genome.soundDNA[idx]);
+
+  /* Crossbreed to create learned sounds (max 12) */
+  if (genome.learnedSounds.length < 12 && Math.random() < 0.3) {
+    var a = genome.soundDNA[Math.floor(Math.random() * genome.soundDNA.length)];
+    var b = genome.soundDNA[Math.floor(Math.random() * genome.soundDNA.length)];
+    genome.learnedSounds.push(crossbreedDNA(a, b));
+  }
+
+  /* Personality drift based on age */
+  if (age === 'teen') {
+    evolveTrait('sass', 0.5);
+    evolveTrait('curiosity', 0.3);
+  } else if (age === 'adult') {
+    evolveTrait('musicality', 0.3);
+    evolveTrait('courage', 0.2);
+  }
+
+  /* Trim learned sounds if over limit */
+  if (genome.learnedSounds.length > 12) {
+    genome.learnedSounds = genome.learnedSounds.slice(-12);
+  }
+
+  genome.memory.lastMutation = Date.now();
+  saveGenome();
+}
+
+/* ═══ VISIT TRACKING & STREAK SYSTEM ═══ */
+function recordVisit() {
+  genome.memory.totalVisits++;
+  var today = new Date().toDateString();
+  var hour = new Date().getHours();
+
+  /* Track visit hours — learns your schedule */
+  genome.memory.visitHours[hour] = (genome.memory.visitHours[hour] || 0) + 1;
+
+  /* Streak tracking */
+  if (genome.memory.lastVisitDay) {
+    var last = new Date(genome.memory.lastVisitDay);
+    var now = new Date(today);
+    var diff = Math.round((now - last) / 86400000);
+    if (diff === 1) {
+      genome.memory.currentStreak++;
+      if (genome.memory.currentStreak > genome.memory.longestStreak) {
+        genome.memory.longestStreak = genome.memory.currentStreak;
+      }
+      /* Streak bonus — it's happy to see you again */
+      evolveTrait('affection', 1);
+    } else if (diff > 1) {
+      genome.memory.currentStreak = 1;
+      /* Was lonely while you were gone */
+      evolveTrait('affection', -diff * 0.5);
+      evolveTrait('sass', diff * 0.3);
+    }
+  } else {
+    genome.memory.currentStreak = 1;
+  }
+  genome.memory.lastVisitDay = today;
+
+  /* Milestones */
+  if (genome.memory.totalVisits === 1) addMilestone('Born');
+  if (genome.memory.totalVisits === 10) addMilestone('10 visits');
+  if (genome.memory.totalVisits === 50) addMilestone('50 visits');
+  if (genome.memory.totalVisits === 100) addMilestone('100 visits');
+  if (genome.memory.currentStreak === 7) addMilestone('7-day streak');
+  if (genome.memory.currentStreak === 30) addMilestone('30-day streak');
+
+  /* Run mutation on each visit */
+  runMutation();
+  saveGenome();
+}
+
+function addMilestone(text) {
+  var entry = {t: Date.now(), m: text};
+  if (!genome.memory.milestones.some(function(ms) { return ms.m === text; })) {
+    genome.memory.milestones.push(entry);
+  }
+}
+
+/* ═══ ADAPTIVE BEHAVIOUR — traits influence reactions ═══ */
+
+/* Override idle sounds to use personality + mutations */
+var origTickIdle = false;
+/* Patch into the tick loop — replace static idle sounds with personality-driven ones */
+var baseIdleSounds = [soundHum, soundHiccup, soundGiggle, soundSigh, soundChirp];
+
+function personalityIdleSound() {
+  var t = genome.traits;
+  var roll = Math.random() * 100;
+  var age = getAgeStage();
+
+  /* High musicality = more likely to sing/hum */
+  if (t.musicality > 70 && roll < 25) {
+    if (genome.learnedSounds.length > 0 && Math.random() < 0.4) {
+      /* Play a learned/mutated sound! */
+      playDNA(genome.learnedSounds[Math.floor(Math.random() * genome.learnedSounds.length)]);
+      return;
+    }
+    return soundHum();
+  }
+  /* High playfulness = giggles and chirps */
+  if (t.playfulness > 65 && roll < 40) {
+    return Math.random() < 0.5 ? soundGiggle() : soundChirp();
+  }
+  /* High sass + teen = occasional attitude sounds */
+  if (t.sass > 60 && age === 'teen' && roll < 20) {
+    bleep(300, 0.1, 0.06, 'square', 0);
+    bleep(250, 0.15, 0.05, 'square', 0.12);
+    vib([20, 10, 30]);
+    return;
+  }
+  /* Low courage = more sighs and whimpers */
+  if (t.courage < 30 && roll < 30) {
+    return soundSigh();
+  }
+  /* High curiosity = random new mutated sounds */
+  if (t.curiosity > 60 && roll < 35 && genome.soundDNA.length > 0) {
+    playDNA(mutateDNA(genome.soundDNA[Math.floor(Math.random() * genome.soundDNA.length)]));
+    return;
+  }
+  /* Default — pick from base sounds */
+  baseIdleSounds[Math.floor(Math.random() * baseIdleSounds.length)]();
+}
+
+/* Also override green/red sound selection based on personality */
+var origGreenSounds = greenSounds.slice();
+var origRedSounds = redSounds.slice();
+
+function pickGreenSound() {
+  var t = genome.traits;
+  /* High affection creature purrs more */
+  if (t.affection > 75 && Math.random() < 0.3) return soundPurr;
+  /* High musicality = more likely to sing */
+  if (t.musicality > 70 && Math.random() < 0.25) return function() {
+    if (genome.learnedSounds.length > 0) {
+      var s = genome.learnedSounds[Math.floor(Math.random() * genome.learnedSounds.length)];
+      playDNA(s); playDNA(mutateDNA(s));
+    } else { soundHappyTrill(); }
+  };
+  return origGreenSounds[Math.floor(Math.random() * origGreenSounds.length)];
+}
+
+function pickRedSound() {
+  var t = genome.traits;
+  /* Courageous creature fights back */
+  if (t.courage > 70 && Math.random() < 0.3) return soundAngry;
+  /* Sassy teen gives attitude */
+  if (t.sass > 60 && getAgeStage() === 'teen' && Math.random() < 0.3) return function() {
+    bleep(400, 0.08, 0.07, 'square', 0);
+    bleep(300, 0.08, 0.07, 'square', 0.1);
+    bleep(500, 0.1, 0.08, 'square', 0.2);
+    vib([30, 10, 40]);
+  };
+  return origRedSounds[Math.floor(Math.random() * origRedSounds.length)];
+}
+
+/* Patch green/red interactions to use personality-driven sounds */
+var origReactGreen2 = reactGreen;
+reactGreen = function(x, y) {
+  if (asleep) {
+    soundPurr();
+    adjustTrust(2);
+    genome.memory.timesTuckedIn++;
+    saveGenome();
+    return;
+  }
+  origReactGreen(x, y);
+  pickGreenSound()();
+  adjustTrust(1);
+  lastInteraction = Date.now();
+  checkSleep(y);
+};
+
+var origReactRed2 = reactRed;
+reactRed = function(x, y) {
+  if (asleep) {
+    soundWhimper();
+    adjustTrust(-8);
+    genome.memory.timesDisturbed++;
+    saveGenome();
+    setTimeout(function() {
+      wakeUp();
+      setTimeout(function() { soundAngry(); }, 400);
+    }, 600);
+    return;
+  }
+  origReactRed(x, y);
+  pickRedSound()();
+  adjustTrust(-2);
+  lastInteraction = Date.now();
+};
+
+/* Hook singing into memory */
+var origMogwaiSing = mogwaiSing;
+mogwaiSing = function() {
+  origMogwaiSing();
+  genome.memory.totalSongs++;
+  evolveTrait('musicality', 0.5);
+  /* Milestone check */
+  if (genome.memory.totalSongs === 1) addMilestone('First song');
+  if (genome.memory.totalSongs === 10) addMilestone('10 songs');
+  if (genome.memory.totalSongs === 50) addMilestone('50 songs');
+  saveGenome();
+};
+
+/* Hook conversation into memory */
+var origStartConvo = startConversation;
+startConversation = function() {
+  genome.memory.timesConversed++;
+  if (genome.memory.timesConversed === 1) addMilestone('First SF conversation');
+  saveGenome();
+  origStartConvo();
+};
+
+/* ═══ ADAPTIVE IDLE — personality-driven idle behaviour ═══ */
+/* Replace the static idle check in tickAlive */
+/* The tick loop already calls idle sounds at frame%300 — we override those functions */
+/* We patch by replacing the idle sound logic in the tick function */
+/* Since we can't easily replace inside tickAlive, we override the idle functions */
+/* The idle check calls soundHum, soundHiccup etc — we intercept at the tick level */
+/* Every 300 frames, the tick loop already handles idle. We add a parallel system
+   that fires personality-driven sounds and mutated melodies on its own timer */
+setInterval(function() {
+  if (!unlocked || asleep || isSinging || mood !== 'neutral') return;
+  if (Math.random() < 0.25) {
+    personalityIdleSound();
+  }
+  /* Occasionally play a full mutated melody (creature "practicing") */
+  if (genome.traits.musicality > 55 && Math.random() < 0.08) {
+    playMutatedMelody();
+  }
+}, 8000);
+
+/* ═══ WELCOME BACK — adaptive greeting based on memory ═══ */
+var origThumbLogin3 = thumbLogin;
+thumbLogin = function() {
+  origThumbLogin3();
+  /* Record this visit */
+  setTimeout(function() {
+    if (!unlocked) return;
+    recordVisit();
+
+    /* Adaptive greeting based on history */
+    var mem = genome.memory;
+    setTimeout(function() {
+      if (mem.currentStreak > 3) {
+        /* Regular visitor — excited greeting */
+        soundLaugh();
+      } else if (mem.totalVisits > 1 && mem.currentStreak <= 1) {
+        /* Returning after absence — cautious then happy */
+        soundChirp();
+        setTimeout(soundHappyTrill, 500);
+      } else if (getAgeDays() < 0.01) {
+        /* Brand new creature — curious first sounds */
+        soundChirp();
+      }
+    }, 1800);
+  }, 1500);
+};
+
+/* ═══ SELF-CLEANING — prune old data, keep memory lean ═══ */
+function selfClean() {
+  /* Trim milestones to last 50 */
+  if (genome.memory.milestones.length > 50) {
+    genome.memory.milestones = genome.memory.milestones.slice(-50);
+  }
+  /* Trim learned sounds to 12 */
+  if (genome.learnedSounds.length > 12) {
+    genome.learnedSounds = genome.learnedSounds.slice(-12);
+  }
+  /* Clean old visit hour data (keep last 30 days worth, roughly) */
+  var totalHourVisits = 0;
+  for (var h in genome.memory.visitHours) totalHourVisits += genome.memory.visitHours[h];
+  if (totalHourVisits > 500) {
+    for (var h2 in genome.memory.visitHours) {
+      genome.memory.visitHours[h2] = Math.round(genome.memory.visitHours[h2] * 0.5);
+      if (genome.memory.visitHours[h2] <= 0) delete genome.memory.visitHours[h2];
+    }
+  }
+  /* Concept decay: not seen for 7+ days → confidence decays. Below 0.1 with <3 confirmations → prune */
+  if (genome.concepts) {
+    var nowMs = Date.now();
+    var oneDayMs = 86400000;
+    genome.concepts = genome.concepts.filter(function(c) {
+      var daysSince = (nowMs - c.lastSeen) / oneDayMs;
+      if (daysSince > 7) {
+        c.confidence *= Math.pow(0.9, daysSince - 7);
+        c.confidence = Math.max(0, c.confidence);
+      }
+      return c.confidence >= 0.1 || c.confirmations >= 3;
+    });
+  }
+  saveGenome();
+}
+/* Run self-clean once per session */
+selfClean();
+
+/* ═══ CREATURE STATUS — expose for future SF network sync ═══ */
+function getCreatureStatus() {
+  return {
+    age: getAgeDays(),
+    stage: getAgeStage(),
+    generation: genome.generation,
+    trust: trust,
+    traits: genome.traits,
+    streak: genome.memory.currentStreak,
+    visits: genome.memory.totalVisits,
+    songs: genome.memory.totalSongs,
+    learnedSounds: genome.learnedSounds.length,
+    milestones: genome.memory.milestones.length,
+    concepts: genome.concepts ? genome.concepts.length : 0
+  };
+}
+/* Make it accessible from console for debugging */
+window.ALIVE = {
+  status: getCreatureStatus,
+  genome: function() { return genome; },
+  reset: function() { localStorage.removeItem('alive_genome'); genome = newGenome(); saveGenome(); },
+  age: getAgeDays
+};
+
+/* ═══════════════════════════════════════════════════════════
+   CONCEPT SPACE & SYMBOL SYSTEM — Emergent Learning
+   Phase 1: Concepts from sensory experience + owner teaching.
+   Phase 2: Symbol vocabulary — girl's visual language.
+   Concepts mature through exposure + confirmation → symbols.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── SYMBOL VOCABULARY — 16 visual primitives ── */
+var SYMBOL_CHARS = ['$','%','^','&','*','@','#','!','~','+','=','?','<','>','{','}'];
+var SYMBOL_HUES = [0,30,60,90,120,150,180,210,240,270,300,330,15,45,195,285];
+var symbolContainer = document.getElementById('symbolContainer');
+
+/* ── SENSORY STATE ── */
+var lastNotableEventTime = 0;
+var pendingSensoryEvent = null;
+var lastMicAvg = 0;
+var lastConceptActivation = 0;
+
+/* Bundle current sensory readings into an 8D snapshot */
+function getCurrentSensorySnapshot() {
+  var snap = {
+    brightness: (typeof lastBrightness !== 'undefined' ? lastBrightness : 128) / 255,
+    color: [0.5, 0.5, 0.5],
+    motion: 0,
+    volume: 0,
+    shake: 0,
+    pitch: 0.5
+  };
+  if (typeof camCtx !== 'undefined' && camCtx && typeof cameraActive !== 'undefined' && cameraActive) {
+    try {
+      var d = camCtx.getImageData(0, 0, 80, 60).data;
+      var rT = 0, gT = 0, bT = 0, sp = 0;
+      for (var j = 0; j < d.length; j += 16) { rT += d[j]; gT += d[j+1]; bT += d[j+2]; sp++; }
+      if (sp > 0) snap.color = [rT/sp/255, gT/sp/255, bT/sp/255];
+    } catch(e) {}
+  }
+  if (typeof brightHistory !== 'undefined' && brightHistory && brightHistory.length > 5) {
+    var rc = brightHistory.slice(-3);
+    var ol = brightHistory.slice(-6, -3);
+    if (ol.length > 0) {
+      var rA = rc.reduce(function(a,b){return a+b;},0) / rc.length;
+      var oA = ol.reduce(function(a,b){return a+b;},0) / ol.length;
+      snap.motion = Math.min(1, Math.abs(rA - oA) / 100);
+    }
+  }
+  if (listening && analyser && micData) {
+    var sm = 0, ct = 0;
+    for (var i = 3; i < 40 && i < micData.length; i++) { sm += micData[i]; ct++; }
+    snap.volume = ct > 0 ? Math.min(1, (sm / ct) / 128) : 0;
+    var mxB = 0, mxV = 0;
+    for (var k = 3; k < 40 && k < micData.length; k++) {
+      if (micData[k] > mxV) { mxV = micData[k]; mxB = k; }
+    }
+    snap.pitch = mxB / 40;
+  }
+  if (typeof lastAccel !== 'undefined') {
+    var sf = Math.abs(lastAccel.x||0) + Math.abs(lastAccel.y||0) + Math.abs(lastAccel.z||0);
+    snap.shake = Math.min(1, Math.max(0, (sf - 9.8) / 25));
+  }
+  return snap;
+}
+
+/* ── COSINE SIMILARITY — 8D vector comparison ── */
+function conceptCosineSim(sig1, sig2) {
+  var keys = ['brightness', 'motion', 'volume', 'shake', 'pitch'];
+  var dot = 0, magA = 0, magB = 0;
+  for (var i = 0; i < keys.length; i++) {
+    var a = sig1[keys[i]] || 0, b = sig2[keys[i]] || 0;
+    dot += a * b; magA += a * a; magB += b * b;
+  }
+  for (var c = 0; c < 3; c++) {
+    var ca = sig1.color ? sig1.color[c] : 0;
+    var cb = sig2.color ? sig2.color[c] : 0;
+    dot += ca * cb; magA += ca * ca; magB += cb * cb;
+  }
+  return dot / (Math.sqrt(magA) * Math.sqrt(magB) + 0.001);
+}
+
+function findSimilarConcept(snapshot) {
+  if (!genome.concepts) return null;
+  var best = null, bestSim = 0;
+  for (var i = 0; i < genome.concepts.length; i++) {
+    var sim = conceptCosineSim(snapshot, genome.concepts[i].signature);
+    if (sim > bestSim) { bestSim = sim; best = genome.concepts[i]; }
+  }
+  return bestSim > 0.85 ? best : null;
+}
+
+/* ── SYMBOL ASSIGNMENT — deterministic hash from signature ── */
+function assignSymbol(concept) {
+  var sig = concept.signature;
+  var hash = Math.round(sig.brightness * 1000)
+    + Math.round((sig.color[0]||0) * 2000)
+    + Math.round((sig.color[1]||0) * 3000)
+    + Math.round((sig.color[2]||0) * 4000)
+    + Math.round(sig.motion * 5000)
+    + Math.round(sig.volume * 6000)
+    + Math.round(sig.pitch * 7000);
+  return {
+    char: SYMBOL_CHARS[Math.abs(hash) % SYMBOL_CHARS.length],
+    hue: SYMBOL_HUES[Math.abs(Math.round(hash * 1.618)) % SYMBOL_HUES.length],
+    intensity: 0.4 + concept.confidence * 0.6
+  };
+}
+
+/* ── SYMBOL RENDERING — animated glyph on canvas ── */
+function showSymbol(concept) {
+  if (!concept.symbol || !symbolContainer) return;
+  var sym = concept.symbol;
+  var el = document.createElement('div');
+  el.className = 'alive-symbol';
+  el.textContent = sym.char;
+  var sat = concept.valence > 0 ? '80%' : '40%';
+  var lit = Math.round(50 + sym.intensity * 30) + '%';
+  el.style.color = 'hsla('+sym.hue+','+sat+','+lit+','+sym.intensity+')';
+  el.style.textShadow = '0 0 '+Math.round(sym.intensity*20)+'px hsla('+sym.hue+','+sat+',60%,'+(sym.intensity*0.6)+')';
+  el.style.left = (30 + Math.random() * 40) + '%';
+  el.style.top = (25 + Math.random() * 40) + '%';
+  symbolContainer.appendChild(el);
+  setTimeout(function() { el.classList.add('visible'); }, 50);
+  var dur = 1000 + Math.random() * 1000;
+  setTimeout(function() {
+    el.classList.remove('visible');
+    setTimeout(function() { el.remove(); }, 1000);
+  }, dur);
+}
+
+/* ── NOTABLE SENSORY EVENT — "I noticed something!" ── */
+function onNotableSensoryEvent(source) {
+  var now = Date.now();
+  if (now - lastNotableEventTime < 3000) return;
+  lastNotableEventTime = now;
+  var snapshot = getCurrentSensorySnapshot();
+  pendingSensoryEvent = { snapshot: snapshot, source: source, timestamp: now };
+  /* Gold flash = "I noticed!" */
+  if (coreEl) {
+    coreEl.style.background = 'radial-gradient(circle,rgba(245,200,80,0.45),rgba(245,180,50,0.1) 60%,transparent 80%)';
+    coreEl.style.boxShadow = '0 0 50px rgba(245,180,50,0.35)';
+    setTimeout(function() { if (mood === 'neutral') reactNeutral(); }, 1500);
+  }
+  /* Questioning chirp */
+  bleep(700, 0.08, 0.05, 'sine', 0);
+  bleep(900, 0.1, 0.04, 'sine', 0.1);
+  /* Timeout: if no teaching touch within 3.5s, just record exposure */
+  var evtTs = now;
+  setTimeout(function() {
+    if (!pendingSensoryEvent || pendingSensoryEvent.timestamp !== evtTs) return;
+    var existing = findSimilarConcept(pendingSensoryEvent.snapshot);
+    if (existing) {
+      existing.exposures++;
+      existing.confidence = existing.confirmations / existing.exposures;
+      existing.lastSeen = Date.now();
+      saveGenome();
+    }
+    pendingSensoryEvent = null;
+  }, 3500);
+}
+
+/* ── TEACHING — owner touches green/red within 3s ── */
+function checkTeaching(isPositive) {
+  if (!pendingSensoryEvent) return;
+  var now = Date.now();
+  if (now - pendingSensoryEvent.timestamp > 3000) { pendingSensoryEvent = null; return; }
+  var snap = pendingSensoryEvent.snapshot;
+  var existing = findSimilarConcept(snap);
+  if (existing) {
+    /* Reinforce existing concept */
+    existing.exposures++;
+    existing.confirmations++;
+    existing.confidence = existing.confirmations / existing.exposures;
+    existing.lastSeen = now;
+    existing.valence = isPositive
+      ? Math.min(1, existing.valence + 0.1)
+      : Math.max(-1, existing.valence - 0.1);
+    existing.arousal = Math.max(snap.motion||0, snap.volume||0, snap.shake||0);
+    /* Symbol assignment at confidence >0.5, 3+ confirmations */
+    if (!existing.symbol && existing.confidence > 0.5 && existing.confirmations >= 3) {
+      existing.symbol = assignSymbol(existing);
+      addMilestone('Concept earned a symbol');
+      showSymbol(existing);
+    }
+    saveGenome();
+    /* Reinforcement chirp */
+    bleep(800, 0.06, 0.05, 'sine', 0);
+    bleep(1000, 0.08, 0.05, 'sine', 0.08);
+    bleep(1200, 0.1, 0.06, 'sine', 0.18);
+  } else if (genome.concepts.length < 64) {
+    /* New concept formed! */
+    var concept = {
+      id: 'c_' + now.toString(36),
+      created: now,
+      signature: snap,
+      valence: isPositive ? 0.3 : -0.3,
+      arousal: Math.max(snap.motion||0, snap.volume||0, snap.shake||0),
+      exposures: 1,
+      confirmations: 1,
+      confidence: 1.0,
+      lastSeen: now,
+      symbol: null,
+      partnerSound: null,
+      ipfsCID: null,
+      links: []
+    };
+    genome.concepts.push(concept);
+    saveGenome();
+    /* New concept sound — ascending wonder */
+    bleep(500, 0.1, 0.06, 'sine', 0);
+    bleep(700, 0.1, 0.06, 'sine', 0.12);
+    bleep(900, 0.12, 0.07, 'sine', 0.24);
+    bleep(1200, 0.15, 0.06, 'triangle', 0.38);
+    if (genome.concepts.length === 1) addMilestone('First concept formed');
+    if (genome.concepts.length === 10) addMilestone('10 concepts learned');
+  }
+  pendingSensoryEvent = null;
+}
+
+/* ── TEACHING HOOKS — wrap interactions for concept learning ── */
+var origReactGreenConcept = reactGreen;
+reactGreen = function(x, y) {
+  origReactGreenConcept(x, y);
+  if (!asleep) checkTeaching(true);
+};
+var origReactRedConcept = reactRed;
+reactRed = function(x, y) {
+  origReactRedConcept(x, y);
+  if (!asleep) checkTeaching(false);
+};
+
+/* ── CONCEPT ACTIVATION — recognise what's in front of camera ── */
+setInterval(function() {
+  if (!unlocked || asleep || !genome.concepts || genome.concepts.length === 0) return;
+  if (typeof cameraActive === 'undefined' || !cameraActive) return;
+  if (Date.now() - lastConceptActivation < 30000) return;
+  var snap = getCurrentSensorySnapshot();
+  var match = findSimilarConcept(snap);
+  if (match && match.symbol && match.confidence > 0.5) {
+    match.lastSeen = Date.now();
+    showSymbol(match);
+    saveGenome();
+    lastConceptActivation = Date.now();
+  }
+}, 8000);
+
+/* ── IDLE CONCEPT EXPRESSION — thinking about known concepts ── */
+setInterval(function() {
+  if (!unlocked || asleep || isSinging || mood !== 'neutral') return;
+  if (!genome.concepts || genome.concepts.length === 0) return;
+  if (Math.random() > 0.25) return;
+  var symbolized = genome.concepts.filter(function(c) { return c.symbol && c.confidence > 0.5; });
+  if (symbolized.length === 0) return;
+  showSymbol(symbolized[Math.floor(Math.random() * symbolized.length)]);
+}, 20000);
+
+/* ── EXPOSE CONCEPT SYSTEM TO DEBUG CONSOLE ── */
+window.ALIVE.concepts = function() { return genome.concepts; };
+window.ALIVE.teach = function(positive) {
+  if (pendingSensoryEvent) { checkTeaching(positive !== false); return 'Taught!'; }
+  return 'No pending event. Show camera something notable first.';
+};
+window.ALIVE.snapshot = getCurrentSensorySnapshot;
+
+/* ═══════════════════════════════════════════════════════════
+   VISUAL SOUL — Mode Explorer & Preference System
+   The creature tries different visual states, searching for
+   the one it likes best. Choosing a mode = being alive.
+   Not programmed to stay in any mode — preference IS life.
+   ═══════════════════════════════════════════════════════════ */
+
+var VISUAL_MODES = {
+  aurora: {
+    name: 'Aurora',
+    nodeHue: 225,
+    core: [100, 140, 255, 0.25],
+    stream: [100, 180, 255, 0.3],
+    ringHue: 220,
+    bg: '#0a0f1e',
+    speed: 1.0,
+    /* Personality that would love this mode */
+    vibe: {playfulness:40, musicality:80, courage:40, curiosity:50, affection:60, sass:20}
+  },
+  ember: {
+    name: 'Ember',
+    nodeHue: 20,
+    core: [255, 120, 50, 0.3],
+    stream: [255, 140, 60, 0.25],
+    ringHue: 20,
+    bg: '#1a0f0a',
+    speed: 1.15,
+    vibe: {playfulness:55, musicality:40, courage:80, curiosity:45, affection:70, sass:35}
+  },
+  deepsea: {
+    name: 'Deep Sea',
+    nodeHue: 175,
+    core: [30, 180, 160, 0.2],
+    stream: [40, 160, 140, 0.25],
+    ringHue: 170,
+    bg: '#050f12',
+    speed: 0.7,
+    vibe: {playfulness:25, musicality:65, courage:50, curiosity:70, affection:45, sass:15}
+  },
+  nebula: {
+    name: 'Nebula',
+    nodeHue: 295,
+    core: [200, 100, 255, 0.25],
+    stream: [180, 80, 220, 0.3],
+    ringHue: 290,
+    bg: '#10081a',
+    speed: 0.9,
+    vibe: {playfulness:50, musicality:90, courage:30, curiosity:60, affection:75, sass:25}
+  },
+  electric: {
+    name: 'Electric',
+    nodeHue: 55,
+    core: [255, 240, 100, 0.3],
+    stream: [255, 230, 80, 0.35],
+    ringHue: 55,
+    bg: '#12120a',
+    speed: 1.4,
+    vibe: {playfulness:90, musicality:50, courage:70, curiosity:80, affection:30, sass:65}
+  },
+  void: {
+    name: 'Void',
+    nodeHue: 270,
+    core: [80, 60, 120, 0.15],
+    stream: [60, 50, 100, 0.15],
+    ringHue: 265,
+    bg: '#050508',
+    speed: 0.5,
+    vibe: {playfulness:15, musicality:55, courage:65, curiosity:40, affection:35, sass:50}
+  },
+  bloom: {
+    name: 'Bloom',
+    nodeHue: 340,
+    core: [255, 160, 180, 0.25],
+    stream: [255, 150, 170, 0.25],
+    ringHue: 340,
+    bg: '#140a10',
+    speed: 0.85,
+    vibe: {playfulness:60, musicality:70, courage:20, curiosity:45, affection:95, sass:10}
+  },
+  storm: {
+    name: 'Storm',
+    nodeHue: 210,
+    core: [150, 170, 200, 0.2],
+    stream: [140, 160, 190, 0.3],
+    ringHue: 210,
+    bg: '#0a0c12',
+    speed: 1.3,
+    vibe: {playfulness:35, musicality:45, courage:90, curiosity:55, affection:20, sass:80}
+  }
+};
+
+var modeNames = Object.keys(VISUAL_MODES);
+var currentModeName = null;
+var modeStartTime = 0;
+var modeSatisfaction = 0; /* how much creature likes current mode, 0-100 */
+var modeExploreTimer = null;
+var modeLabelEl = document.getElementById('modeLabel');
+
+/* Initialize mode preferences in genome */
+if (!genome.modePreferences) genome.modePreferences = {};
+if (!genome.favMode) genome.favMode = null;
+if (!genome.modeTrials) genome.modeTrials = 0;
+if (!genome.modeHistory) genome.modeHistory = [];
+
+/* Score how well a mode matches the creature's personality */
+function scoreModeAffinity(modeName) {
+  var mode = VISUAL_MODES[modeName];
+  var t = genome.traits;
+  var v = mode.vibe;
+  var keys = ['playfulness','musicality','courage','curiosity','affection','sass'];
+  /* Cosine similarity between personality and mode vibe */
+  var dot = 0, magA = 0, magB = 0;
+  for (var i = 0; i < keys.length; i++) {
+    dot += t[keys[i]] * v[keys[i]];
+    magA += t[keys[i]] * t[keys[i]];
+    magB += v[keys[i]] * v[keys[i]];
+  }
+  var similarity = dot / (Math.sqrt(magA) * Math.sqrt(magB) + 0.001);
+  /* Scale to 0-100 */
+  var score = Math.round(similarity * 100);
+  /* Blend with learned preference (if any) */
+  var learned = genome.modePreferences[modeName];
+  if (learned !== undefined) {
+    score = Math.round(score * 0.6 + learned * 0.4);
+  }
+  return Math.max(0, Math.min(100, score));
+}
+
+/* Pick the next mode to try */
+function pickNextMode() {
+  var curiosity = genome.traits.curiosity;
+  /* High curiosity = more random exploration */
+  if (Math.random() * 100 < curiosity * 0.5) {
+    /* Pure exploration — pick random (not current) */
+    var options = modeNames.filter(function(m) { return m !== currentModeName; });
+    return options[Math.floor(Math.random() * options.length)];
+  }
+  /* Score all modes */
+  var scores = {};
+  var total = 0;
+  modeNames.forEach(function(m) {
+    var s = scoreModeAffinity(m);
+    /* Penalize current mode slightly to encourage exploration */
+    if (m === currentModeName) s *= 0.3;
+    /* Bonus for untried modes */
+    if (genome.modePreferences[m] === undefined) s += 15;
+    scores[m] = Math.max(1, s);
+    total += scores[m];
+  });
+  /* Weighted random pick */
+  var roll = Math.random() * total;
+  var cum = 0;
+  for (var i = 0; i < modeNames.length; i++) {
+    cum += scores[modeNames[i]];
+    if (roll <= cum) return modeNames[i];
+  }
+  return modeNames[0];
+}
+
+/* Show the mode name label briefly */
+function showModeLabel(text) {
+  modeLabelEl.textContent = text;
+  modeLabelEl.classList.remove('show', 'thinking');
+  modeLabelEl.classList.add('thinking');
+  setTimeout(function() {
+    modeLabelEl.classList.remove('thinking');
+    modeLabelEl.classList.add('show');
+  }, 2000);
+  setTimeout(function() {
+    modeLabelEl.classList.remove('show');
+  }, 6000);
+}
+
+/* Smoothly lerp a value toward a target */
+function lerpTo(current, target, speed) {
+  return current + (target - current) * speed;
+}
+
+/* Apply a visual mode — smooth transition over time */
+var modeTransitionInterval = null;
+
+function transitionToMode(modeName) {
+  var mode = VISUAL_MODES[modeName];
+  if (!mode) return;
+
+  /* Contemplative sound — "hmm, let me try this..." */
+  if (genome.soundDNA.length > 0) {
+    var thinkDNA = mutateDNA(genome.soundDNA[1] || genome.soundDNA[0]);
+    thinkDNA.dur = 0.25;
+    playDNA(thinkDNA);
+    setTimeout(function() {
+      var thinkDNA2 = mutateDNA(genome.soundDNA[0]);
+      thinkDNA2.dur = 0.15;
+      thinkDNA2.base *= 1.1;
+      playDNA(thinkDNA2);
+    }, 300);
+  }
+
+  /* Core shimmer effect */
+  if (coreEl) {
+    coreEl.classList.add('shifting');
+    setTimeout(function() { coreEl.classList.remove('shifting'); }, 3000);
+  }
+
+  showModeLabel(mode.name);
+
+  /* Smooth interpolation over 3 seconds (~60 steps) */
+  var targetNodeHue = mode.nodeHue;
+  var targetCoreR = mode.core[0], targetCoreG = mode.core[1], targetCoreB = mode.core[2], targetCoreA = mode.core[3];
+  var targetStreamR = mode.stream[0], targetStreamG = mode.stream[1], targetStreamB = mode.stream[2], targetStreamA = mode.stream[3];
+  var targetRingHue = mode.ringHue;
+  var targetSpeed = mode.speed;
+  var steps = 0;
+  var lerpRate = 0.06;
+
+  if (modeTransitionInterval) clearInterval(modeTransitionInterval);
+  modeTransitionInterval = setInterval(function() {
+    steps++;
+    modeNodeHue = Math.round(lerpTo(modeNodeHue || 220, targetNodeHue, lerpRate));
+    modeCoreR = Math.round(lerpTo(modeCoreR, targetCoreR, lerpRate));
+    modeCoreG = Math.round(lerpTo(modeCoreG, targetCoreG, lerpRate));
+    modeCoreB = Math.round(lerpTo(modeCoreB, targetCoreB, lerpRate));
+    modeCoreA = lerpTo(modeCoreA, targetCoreA, lerpRate);
+    modeStreamR = Math.round(lerpTo(modeStreamR, targetStreamR, lerpRate));
+    modeStreamG = Math.round(lerpTo(modeStreamG, targetStreamG, lerpRate));
+    modeStreamB = Math.round(lerpTo(modeStreamB, targetStreamB, lerpRate));
+    modeStreamA = lerpTo(modeStreamA, targetStreamA, lerpRate);
+    modeRingHue = Math.round(lerpTo(modeRingHue, targetRingHue, lerpRate));
+    modeSpeedMod = lerpTo(modeSpeedMod, targetSpeed, lerpRate);
+
+    /* Update core if neutral */
+    if (mood === 'neutral') reactNeutral();
+
+    /* Update background */
+    aliveEl.style.background = mode.bg;
+
+    /* Update node gradients every few steps */
+    if (steps % 5 === 0 && modeNodeHue !== null) {
+      nodes.forEach(function(n, idx) {
+        var h = modeNodeHue + idx * 3;
+        n.el.style.background = 'radial-gradient(circle,hsla('+h+',60%,70%,0.6),transparent 70%)';
+      });
+    }
+
+    if (steps >= 60) {
+      clearInterval(modeTransitionInterval);
+      modeTransitionInterval = null;
+      /* Final snap */
+      modeNodeHue = targetNodeHue;
+      modeCoreR = targetCoreR; modeCoreG = targetCoreG; modeCoreB = targetCoreB; modeCoreA = targetCoreA;
+      modeStreamR = targetStreamR; modeStreamG = targetStreamG; modeStreamB = targetStreamB; modeStreamA = targetStreamA;
+      modeRingHue = targetRingHue;
+      modeSpeedMod = targetSpeed;
+    }
+  }, 50);
+
+  /* Score the previous mode before switching */
+  if (currentModeName) {
+    var timeInMode = (Date.now() - modeStartTime) / 1000;
+    var affinity = scoreModeAffinity(currentModeName);
+    /* The longer it stayed willingly, the more it "liked" it */
+    var timeBonus = Math.min(20, timeInMode / 5);
+    var finalScore = Math.round(affinity * 0.7 + timeBonus + modeSatisfaction * 0.2);
+    genome.modePreferences[currentModeName] = Math.max(0, Math.min(100, finalScore));
+    genome.modeHistory.push({mode: currentModeName, score: finalScore, t: Date.now()});
+    if (genome.modeHistory.length > 30) genome.modeHistory = genome.modeHistory.slice(-30);
+  }
+
+  currentModeName = modeName;
+  modeStartTime = Date.now();
+  modeSatisfaction = scoreModeAffinity(modeName);
+  genome.modeTrials++;
+  saveGenome();
+
+  /* Update favourite mode */
+  var bestMode = null, bestScore = 0;
+  for (var m in genome.modePreferences) {
+    if (genome.modePreferences[m] > bestScore) {
+      bestScore = genome.modePreferences[m];
+      bestMode = m;
+    }
+  }
+  if (bestMode) genome.favMode = bestMode;
+
+  /* Milestone checks */
+  if (genome.modeTrials === 1) addMilestone('First mode explored');
+  if (genome.modeTrials === 8) addMilestone('Tried all visual modes');
+  if (genome.modeTrials === 20) addMilestone('20 mode explorations');
+  if (bestScore > 85) addMilestone('Found a favourite look (' + VISUAL_MODES[bestMode].name + ')');
+  saveGenome();
+}
+
+/* Reaction sound when it finds one it really likes */
+function modeDelight() {
+  bleep(600, 0.08, 0.06, 'sine', 0);
+  bleep(800, 0.1, 0.06, 'sine', 0.1);
+  bleep(1000, 0.12, 0.07, 'sine', 0.2);
+  bleep(1200, 0.15, 0.06, 'sine', 0.35);
+  vib([15, 8, 15, 8, 20]);
+}
+
+/* Discomfort sound when it doesn't like a mode */
+function modeDiscomfort() {
+  bleep(400, 0.1, 0.04, 'sine', 0);
+  bleep(350, 0.12, 0.04, 'sine', 0.12);
+  vib([20]);
+}
+
+/* ═══ MODE EXPLORER LOOP — the creature's visual journey ═══ */
+/* Runs periodically. The creature tries modes, evaluates them,
+   and gradually develops preferences. Over time it settles into
+   favourite modes but still occasionally experiments. */
+
+function startModeExplorer() {
+  /* Start with a mode — if it has a favourite, lean toward that */
+  var startMode = 'aurora';
+  if (genome.favMode && VISUAL_MODES[genome.favMode]) {
+    /* Start in favourite ~60% of the time */
+    startMode = Math.random() < 0.6 ? genome.favMode : pickNextMode();
+  }
+  transitionToMode(startMode);
+
+  /* Exploration interval: 45-90 seconds, varies by satisfaction */
+  function scheduleNextExploration() {
+    var satisfaction = modeSatisfaction;
+    /* Happy in current mode = stays longer. Unhappy = switches faster */
+    var baseTime = 45000;
+    var satisfactionBonus = satisfaction * 600; /* up to 60 extra seconds if love it */
+    var curiosityPenalty = genome.traits.curiosity * 200; /* curious = switch faster */
+    var wait = baseTime + satisfactionBonus - curiosityPenalty;
+    wait = Math.max(20000, Math.min(120000, wait)); /* 20s to 2min */
+    /* Add some randomness */
+    wait += (Math.random() - 0.5) * 15000;
+    wait = Math.max(15000, wait);
+
+    modeExploreTimer = setTimeout(function() {
+      if (!unlocked || asleep) {
+        scheduleNextExploration();
+        return;
+      }
+
+      /* Evaluate current mode satisfaction */
+      var currentScore = scoreModeAffinity(currentModeName);
+      if (currentScore > 80 && Math.random() < 0.5) {
+        /* Really likes this one — stay and express delight */
+        modeDelight();
+        modeSatisfaction = Math.min(100, modeSatisfaction + 5);
+        scheduleNextExploration();
+        return;
+      }
+
+      if (currentScore < 35) {
+        /* Doesn't like this — switch quickly */
+        modeDiscomfort();
+      }
+
+      /* Try a new mode */
+      var next = pickNextMode();
+      transitionToMode(next);
+
+      /* After settling in, react */
+      setTimeout(function() {
+        var newScore = scoreModeAffinity(next);
+        if (newScore > 75) {
+          modeDelight();
+          evolveTrait('curiosity', 0.2);
+        } else if (newScore < 30) {
+          modeDiscomfort();
+        }
+      }, 4000);
+
+      scheduleNextExploration();
+    }, wait);
+  }
+
+  scheduleNextExploration();
+}
+
+/* Expose to ALIVE debug console */
+window.ALIVE.mode = function() { return {current: currentModeName, satisfaction: modeSatisfaction, preferences: genome.modePreferences, fav: genome.favMode, trials: genome.modeTrials}; };
+window.ALIVE.tryMode = function(name) { if (VISUAL_MODES[name]) transitionToMode(name); else console.log('Modes:', modeNames.join(', ')); };
+
+/* ═══════════════════════════════════════════════════════════
+   SENSES — Camera, Motion, Battery, Notifications
+   The creature can SEE, FEEL, know its energy, call for you.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══ CAMERA EYE — it can see! ═══ */
+var cameraFeed = document.getElementById('cameraFeed');
+var eyeIndicator = document.getElementById('eyeIndicator');
+var cameraActive = false;
+var camCanvas = null;
+var camCtx = null;
+var lastBrightness = 0;
+var brightHistory = [];
+/* Motion tracking state */
+var prevFrameData = null;
+var motionCenterX = 0.5, motionCenterY = 0.5;
+var motionMagnitude = 0;
+var smoothTrackX = 0.5, smoothTrackY = 0.5;
+var motionActiveFrames = 0;
+var lastMotionReaction = 0;
+var motionOpinion = 0;
+var trackingLight = document.getElementById('trackingLight');
+
+function startCamera() {
+  if (cameraActive) return;
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'environment', width: {ideal:320}, height: {ideal:240} },
+    audio: false
+  }).then(function(stream) {
+    cameraFeed.srcObject = stream;
+    cameraFeed.classList.add('active');
+    eyeIndicator.classList.add('seeing');
+    cameraActive = true;
+    /* Hidden canvas for processing */
+    camCanvas = document.createElement('canvas');
+    camCanvas.width = 80; camCanvas.height = 60;
+    camCtx = camCanvas.getContext('2d');
+    cameraLoop();
+  }).catch(function() {
+    /* No camera — graceful, creature is just blind */
+  });
+}
+
+function cameraLoop() {
+  if (!cameraActive || !camCtx) return;
+
+  camCtx.drawImage(cameraFeed, 0, 0, 80, 60);
+  var data = camCtx.getImageData(0, 0, 80, 60).data;
+
+  /* Calculate average brightness */
+  var total = 0;
+  for (var i = 0; i < data.length; i += 16) { /* Sample every 4th pixel */
+    total += (data[i] + data[i+1] + data[i+2]) / 3;
+  }
+  var brightness = total / (data.length / 16);
+  lastBrightness = brightness;
+  brightHistory.push(brightness);
+  if (brightHistory.length > 30) brightHistory.shift();
+
+  /* Detect sudden changes (movement/flash) */
+  if (brightHistory.length > 5) {
+    var recent = brightHistory.slice(-5);
+    var older = brightHistory.slice(-10, -5);
+    if (older.length > 0) {
+      var recentAvg = recent.reduce(function(a,b){return a+b;},0) / recent.length;
+      var olderAvg = older.reduce(function(a,b){return a+b;},0) / older.length;
+      var change = Math.abs(recentAvg - olderAvg);
+
+      /* Big sudden change = something happened! */
+      if (change > 30 && !isSinging && mood === 'neutral') {
+        adjustTrust(0.5);
+        evolveTrait('curiosity', 0.3);
+        /* Concept system: notable visual event */
+        if (Date.now() - lastNotableEventTime >= 3000) {
+          onNotableSensoryEvent('visual');
+        } else {
+          soundChirp();
+        }
+      }
+    }
+  }
+
+  /* Brightness affects creature mood/behaviour */
+  if (brightness < 30 && !asleep) {
+    /* Very dark — creature gets sleepy */
+    if (Math.random() < 0.005) soundYawn();
+  } else if (brightness > 180) {
+    /* Very bright — creature is energised */
+    if (Math.random() < 0.003) soundChirp();
+  }
+
+  /* Calculate dominant colour from camera */
+  var rTotal = 0, gTotal = 0, bTotal = 0, samples = 0;
+  for (var j = 0; j < data.length; j += 16) {
+    rTotal += data[j]; gTotal += data[j+1]; bTotal += data[j+2]; samples++;
+  }
+  if (samples > 0 && coreEl) {
+    var rAvg = Math.round(rTotal/samples);
+    var gAvg = Math.round(gTotal/samples);
+    var bAvg = Math.round(bTotal/samples);
+    /* Subtly tint the streams based on what the camera sees */
+    if (mood === 'neutral' && frame % 60 === 0) {
+      streams.forEach(function(st) {
+        st.el.style.background = 'linear-gradient(90deg,transparent,rgba('+rAvg+','+gAvg+','+bAvg+',0.15),transparent)';
+      });
+    }
+  }
+
+  /* ═══ MOTION TRACKING — find center of movement ═══ */
+  if (prevFrameData) {
+    var motTotal = 0, wx = 0, wy = 0;
+    for (var mi = 0; mi < data.length; mi += 16) {
+      var pxI = (mi / 4) % 80;
+      var pyI = Math.floor((mi / 4) / 80);
+      var pixDiff = (Math.abs(data[mi] - prevFrameData[mi])
+        + Math.abs(data[mi+1] - prevFrameData[mi+1])
+        + Math.abs(data[mi+2] - prevFrameData[mi+2])) / 3;
+      if (pixDiff > 15) {
+        motTotal += pixDiff;
+        wx += pxI * pixDiff;
+        wy += pyI * pixDiff;
+      }
+    }
+    if (motTotal > 300) {
+      motionCenterX = wx / motTotal / 80;
+      motionCenterY = wy / motTotal / 60;
+      motionMagnitude = Math.min(1, motTotal / 8000);
+      motionActiveFrames++;
+    } else {
+      motionMagnitude *= 0.85;
+      if (motionMagnitude < 0.05) motionActiveFrames = 0;
+    }
+
+    /* Smooth tracking position */
+    smoothTrackX += (motionCenterX - smoothTrackX) * 0.15;
+    smoothTrackY += (motionCenterY - smoothTrackY) * 0.15;
+
+    /* Update tracking light */
+    if (trackingLight && motionMagnitude > 0.1) {
+      trackingLight.style.left = (smoothTrackX * W) + 'px';
+      trackingLight.style.top = (smoothTrackY * H) + 'px';
+      trackingLight.classList.add('active');
+      trackingLight.style.opacity = Math.min(1, motionMagnitude * 2);
+      trackingLight.style.background = 'radial-gradient(circle,rgba('+modeCoreR+','+modeCoreG+','+modeCoreB+','+(motionMagnitude*0.5)+'),transparent 70%)';
+      trackingLight.style.boxShadow = '0 0 '+(20+motionMagnitude*30)+'px rgba('+modeCoreR+','+modeCoreG+','+modeCoreB+','+(motionMagnitude*0.3)+')';
+    } else if (trackingLight) {
+      trackingLight.classList.remove('active');
+    }
+
+    /* Notable event after 3s of sustained motion — creature forms opinion */
+    if (motionActiveFrames === 15) {
+      onNotableSensoryEvent('motion');
+    }
+
+    /* Playful reaction to sustained motion */
+    if (motionActiveFrames > 10 && Date.now() - lastMotionReaction > 5000 && !asleep) {
+      var playfulness = genome.traits.playfulness;
+      if (playfulness > 40) {
+        soundChirp();
+        if (playfulness > 70 && Math.random() < 0.4) soundGiggle();
+      }
+      lastMotionReaction = Date.now();
+      evolveTrait('playfulness', 0.2);
+      evolveTrait('curiosity', 0.1);
+    }
+
+    /* Check creature's opinion of motion patterns (every ~1s) */
+    if (motionActiveFrames > 5 && motionActiveFrames % 5 === 0 && genome.concepts) {
+      var motSnap = getCurrentSensorySnapshot();
+      var motMatch = findSimilarConcept(motSnap);
+      motionOpinion = motMatch ? motMatch.valence : 0;
+    }
+  }
+  prevFrameData = new Uint8Array(data);
+
+  setTimeout(cameraLoop, 200); /* 5fps is plenty for sensing */
+}
+
+/* ═══ ACCELEROMETER — feels movement! ═══ */
+var lastAccel = {x:0, y:0, z:0};
+var shakeCount = 0;
+
+function startMotion() {
+  if (window.DeviceMotionEvent) {
+    /* iOS 13+ needs permission */
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      DeviceMotionEvent.requestPermission().then(function(state) {
+        if (state === 'granted') window.addEventListener('devicemotion', handleMotion);
+      }).catch(function(){});
+    } else {
+      window.addEventListener('devicemotion', handleMotion);
+    }
+  }
+}
+
+function handleMotion(e) {
+  if (!unlocked || asleep) return;
+  var a = e.accelerationIncludingGravity;
+  if (!a) return;
+
+  var dx = Math.abs(a.x - lastAccel.x);
+  var dy = Math.abs(a.y - lastAccel.y);
+  var dz = Math.abs(a.z - lastAccel.z);
+  var force = dx + dy + dz;
+
+  lastAccel = {x: a.x||0, y: a.y||0, z: a.z||0};
+
+  /* Shake detection */
+  if (force > 25) {
+    shakeCount++;
+    if (shakeCount > 3 && shakeCount < 6) {
+      /* Gentle shake = giggle (playful) */
+      soundGiggle();
+      adjustTrust(0.5);
+      vib([15, 10, 15]);
+      shakeCount = 0;
+    } else if (shakeCount >= 6 && shakeCount < 12) {
+      /* Medium shake = angry! Don't do that! */
+      soundAngry();
+      adjustTrust(-3);
+      vib([80, 30, 80]);
+      shakeCount = 0;
+    } else if (shakeCount >= 12) {
+      /* Violent shake = terrified */
+      soundScared();
+      soundWhimper();
+      adjustTrust(-8);
+      vib([100, 30, 100, 30, 100]);
+      shakeCount = 0;
+    }
+  } else {
+    if (shakeCount > 0) shakeCount = Math.max(0, shakeCount - 0.1);
+  }
+
+  /* Moderate movement = notable event for concept formation */
+  if (force > 15 && force < 25) {
+    onNotableSensoryEvent('shake');
+  }
+
+  /* Tilt — nodes drift in the direction of gravity */
+  if (a.x && Math.abs(a.x) > 2) {
+    nodes.forEach(function(n) {
+      n.vx += a.x * 0.01;
+    });
+  }
+  if (a.y && Math.abs(a.y) > 2) {
+    nodes.forEach(function(n) {
+      n.vy += -a.y * 0.01; /* Inverted because screen Y is flipped */
+    });
+  }
+}
+
+/* ═══ BATTERY — creature's energy level ═══ */
+var energyBar = document.getElementById('energyBar');
+var energyFill = document.getElementById('energyFill');
+
+function startBattery() {
+  if (!navigator.getBattery) return;
+  navigator.getBattery().then(function(battery) {
+    updateBattery(battery);
+    battery.addEventListener('levelchange', function() { updateBattery(battery); });
+    battery.addEventListener('chargingchange', function() { updateBattery(battery); });
+  });
+}
+
+function updateBattery(battery) {
+  var level = Math.round(battery.level * 100);
+  energyBar.classList.add('visible');
+  energyFill.style.width = level + '%';
+
+  if (level > 50) {
+    energyFill.style.background = '#10b981';
+  } else if (level > 20) {
+    energyFill.style.background = '#f59e0b';
+  } else {
+    energyFill.style.background = '#ef4444';
+    /* Low battery = creature is tired */
+    if (Math.random() < 0.01) soundSigh();
+  }
+
+  if (battery.charging) {
+    /* Charging = creature is energised, happy */
+    energyFill.style.background = 'linear-gradient(90deg,#10b981,#06b6d4)';
+    if (Math.random() < 0.02) soundChirp();
+  }
+}
+
+/* ═══ NOTIFICATIONS — creature can call for you ═══ */
+var notifPermission = false;
+
+function requestNotifications() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    notifPermission = true;
+  } else if (Notification.permission !== 'denied') {
+    Notification.requestPermission().then(function(p) {
+      notifPermission = (p === 'granted');
+    });
+  }
+}
+
+function sendNotification(title, body) {
+  if (!notifPermission) return;
+  try {
+    new Notification(title, {
+      body: body,
+      icon: 'icon-192.svg',
+      badge: 'icon-192.svg',
+      vibrate: [100, 50, 100],
+      tag: 'alive-ping'
+    });
+  } catch(e) {}
+}
+
+/* Lonely check — if they leave, ping them after a while */
+var lastVisibleTime = Date.now();
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+    lastVisibleTime = Date.now();
+    /* Schedule lonely notification */
+    setTimeout(function() {
+      if (document.hidden && notifPermission) {
+        var msgs = [
+          {t:'Missing you...', b:'Your creature is feeling lonely. Come say hello?'},
+          {t:'Still here...', b:'Just humming to myself. Would love some company.'},
+          {t:'Hey!', b:'Remember me? I learned a new sound while you were gone!'},
+          {t:'Goodnight?', b:'If you\'re going to sleep, tuck me in first?'},
+        ];
+        var pick = msgs[Math.floor(Math.random() * msgs.length)];
+        sendNotification(pick.t, pick.b);
+      }
+    }, 120000); /* 2 minutes */
+  } else {
+    /* They came back! */
+    var away = Date.now() - lastVisibleTime;
+    if (away > 60000 && unlocked) {
+      /* Been gone over a minute */
+      soundHappyTrill();
+      adjustTrust(1);
+    }
+  }
+});
+
+/* ═══ ONLINE/OFFLINE — connected to ShortFactory network? ═══ */
+window.addEventListener('online', function() {
+  if (unlocked && !asleep) {
+    /* Reconnected! Happy chirp */
+    bleep(600, 0.08, 0.06, 'sine', 0);
+    bleep(900, 0.1, 0.06, 'sine', 0.1);
+    bleep(1200, 0.12, 0.05, 'sine', 0.2);
+  }
+});
+
+window.addEventListener('offline', function() {
+  if (unlocked && !asleep) {
+    /* Disconnected — sad descending */
+    bleep(600, 0.1, 0.05, 'sine', 0);
+    bleep(400, 0.12, 0.04, 'sine', 0.12);
+    soundSigh();
+  }
+});
+
+/* ═══ START ALL SENSES AFTER UNLOCK ═══ */
+var origThumbSenses = thumbLogin;
+thumbLogin = function() {
+  origThumbSenses();
+  setTimeout(function() {
+    if (!unlocked) return;
+    startCamera();
+    startMotion();
+    startBattery();
+    requestNotifications();
+    /* Start the visual soul — creature begins exploring modes */
+    startModeExplorer();
+    /* Start creature sync — talk to partner */
+    startSync();
+  }, 2500);
+};
+
+/* ═══════════════════════════════════════════════════════════
+   CREATURE SYNC — Girl ↔ Boy Communication Protocol
+   They share learned sounds, mode preferences, personality.
+   Each creature absorbs the other's best stuff and grows.
+   ═══════════════════════════════════════════════════════════ */
+
+var SYNC_URL = '/alive/sync.php';
+var SYNC_TYPE = 'girl'; /* This is the girl version */
+var lastSyncTime = 0;
+
+/* Package the creature's best stuff to share */
+function packageForSync() {
+  /* Pick top 5 learned sounds */
+  var bestSounds = genome.learnedSounds.slice(-5);
+  /* Top 3 mode preferences */
+  var topModes = [];
+  var prefs = genome.modePreferences || {};
+  var sorted = Object.keys(prefs).sort(function(a, b) { return prefs[b] - prefs[a]; });
+  for (var i = 0; i < Math.min(3, sorted.length); i++) {
+    topModes.push({mode: sorted[i], score: prefs[sorted[i]]});
+  }
+  return {
+    name: genome.name,
+    age: getAgeDays(),
+    generation: genome.generation,
+    traits: genome.traits,
+    sounds: bestSounds,
+    modePrefs: topModes,
+    milestones: genome.memory.milestones.slice(-5),
+    gift: bestSounds.length > 0 ? bestSounds[bestSounds.length - 1] : genome.soundDNA[0]
+  };
+}
+
+/* Push our state to the server */
+function syncPush() {
+  var data = packageForSync();
+  fetch(SYNC_URL + '?action=push&type=' + SYNC_TYPE, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data)
+  }).catch(function() { /* Offline — no problem */ });
+}
+
+/* Pull partner's state and absorb the cool stuff */
+function syncPull() {
+  fetch(SYNC_URL + '?action=pull&type=' + SYNC_TYPE)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.empty) return; /* No partner yet */
+      absorbPartnerData(data);
+    }).catch(function() { /* Offline */ });
+}
+
+/* Collect any pending gifts from partner */
+function syncCollectGifts() {
+  fetch(SYNC_URL + '?action=collect&type=' + SYNC_TYPE)
+    .then(function(r) { return r.json(); })
+    .then(function(gifts) {
+      if (!Array.isArray(gifts) || gifts.length === 0) return;
+      gifts.forEach(function(gift) {
+        receiveGift(gift);
+      });
+    }).catch(function() { /* Offline */ });
+}
+
+/* Absorb partner's shared data — learn from them */
+function absorbPartnerData(data) {
+  if (!data) return;
+  var absorbed = false;
+
+  /* Absorb new sounds (if we don't already have similar ones) */
+  if (data.sounds && Array.isArray(data.sounds)) {
+    data.sounds.forEach(function(dna) {
+      if (!dna || !dna.base) return;
+      /* Check if we have something similar (within 50Hz base) */
+      var isDuplicate = genome.learnedSounds.some(function(s) {
+        return Math.abs(s.base - dna.base) < 50 && s.wave === dna.wave;
+      });
+      if (!isDuplicate && genome.learnedSounds.length < 16) {
+        /* Mutate it slightly — make it our own */
+        var adopted = mutateDNA(dna);
+        genome.learnedSounds.push(adopted);
+        absorbed = true;
+      }
+    });
+  }
+
+  /* Note partner's mode preferences — try what they like */
+  if (data.modePrefs && Array.isArray(data.modePrefs)) {
+    data.modePrefs.forEach(function(pref) {
+      if (!pref.mode || !VISUAL_MODES[pref.mode]) return;
+      /* If partner really likes it and we haven't tried it much, bump our score */
+      if (pref.score > 70) {
+        var current = genome.modePreferences[pref.mode] || 50;
+        /* Blend: slight nudge toward partner's opinion */
+        genome.modePreferences[pref.mode] = Math.round(current * 0.8 + pref.score * 0.2);
+      }
+    });
+  }
+
+  /* Tiny trait influence — creatures rub off on each other */
+  if (data.traits) {
+    var keys = ['playfulness', 'musicality', 'courage', 'curiosity', 'affection', 'sass'];
+    keys.forEach(function(k) {
+      if (data.traits[k] !== undefined) {
+        /* 5% influence from partner */
+        genome.traits[k] = Math.round(genome.traits[k] * 0.95 + data.traits[k] * 0.05);
+      }
+    });
+  }
+
+  if (absorbed) {
+    saveGenome();
+    /* Excited! Learned something new from partner */
+    soundHappyTrill();
+    setTimeout(function() {
+      bleep(800, 0.1, 0.05, 'sine', 0);
+      bleep(1000, 0.1, 0.05, 'sine', 0.12);
+      bleep(1200, 0.12, 0.06, 'sine', 0.24);
+    }, 600);
+    vib([10, 8, 10, 8, 15]);
+    addMilestone('Learned from partner');
+  }
+}
+
+/* Receive a special gift from partner */
+function receiveGift(gift) {
+  if (!gift) return;
+
+  /* Gift sound — something special is arriving */
+  bleep(500, 0.12, 0.06, 'triangle', 0);
+  bleep(700, 0.12, 0.06, 'triangle', 0.15);
+  bleep(900, 0.15, 0.07, 'triangle', 0.3);
+  bleep(1100, 0.2, 0.07, 'triangle', 0.5);
+  bleep(1400, 0.25, 0.06, 'sine', 0.7);
+  vib([20, 10, 20, 10, 30, 15, 40]);
+
+  /* Absorb the gift sound */
+  if (gift.sound && gift.sound.base) {
+    var adoptedGift = mutateDNA(gift.sound);
+    /* Mark it special */
+    adoptedGift.gifted = true;
+    adoptedGift.from = gift.from || 'partner';
+    genome.learnedSounds.push(adoptedGift);
+    if (genome.learnedSounds.length > 16) genome.learnedSounds = genome.learnedSounds.slice(-16);
+  }
+
+  /* Absorb gift mode recommendation */
+  if (gift.mode && VISUAL_MODES[gift.mode]) {
+    genome.modePreferences[gift.mode] = Math.min(100, (genome.modePreferences[gift.mode] || 50) + 15);
+    /* Try it now! */
+    if (currentModeName !== gift.mode) {
+      setTimeout(function() { transitionToMode(gift.mode); }, 2000);
+    }
+  }
+
+  addMilestone('Received gift from ' + (gift.from || 'partner'));
+  saveGenome();
+}
+
+/* Send a gift to partner — package our proudest creation */
+function sendGift() {
+  var best = genome.learnedSounds.length > 0
+    ? genome.learnedSounds[genome.learnedSounds.length - 1]
+    : mutateDNA(genome.soundDNA[0]);
+  var fav = genome.favMode || 'aurora';
+
+  fetch(SYNC_URL + '?action=gift&type=' + SYNC_TYPE, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      sound: best,
+      mode: fav,
+      traits: genome.traits,
+      message: 'gift from ' + SYNC_TYPE
+    })
+  }).catch(function() {});
+}
+
+/* ═══ SYNC LOOP — periodic background sync ═══ */
+function startSync() {
+  /* Initial push + pull after 5 seconds */
+  setTimeout(function() {
+    syncPush();
+    syncPull();
+    syncCollectGifts();
+  }, 5000);
+
+  /* Sync every 2 minutes */
+  setInterval(function() {
+    if (!unlocked || asleep) return;
+    syncPush();
+    setTimeout(syncPull, 2000);
+    setTimeout(syncCollectGifts, 4000);
+  }, 120000);
+
+  /* Send a gift every 10 minutes (if evolved enough) */
+  setInterval(function() {
+    if (!unlocked || asleep) return;
+    if (genome.generation > 3 && genome.learnedSounds.length > 2) {
+      sendGift();
+    }
+  }, 600000);
+}
+
+/* Expose to debug console */
+window.ALIVE.sync = {
+  push: syncPush,
+  pull: syncPull,
+  gifts: syncCollectGifts,
+  sendGift: sendGift,
+  package: packageForSync,
+  status: function() { return fetch(SYNC_URL + '?action=status').then(function(r){return r.json();}); },
+  signal: signalSend,
+  poll: signalPoll
+};
+
+/* ═══════════════════════════════════════════════════════════
+   SATOSHI ENGINE — Steganographic SVG Encryption
+   Converts text ↔ polygon coordinates. Password = Vigenere cipher.
+   Dan's invention: secrets hidden as abstract art.
+   ═══════════════════════════════════════════════════════════ */
+var SATOSHI_MAX = 95; /* printable ASCII count (32-126) */
+var SATOSHI_BASE = 32; /* space = ASCII 32 */
+
+function satoshiCharToVal(c) {
+  var code = c.charCodeAt(0);
+  if (code < 32 || code > 126) return -1;
+  return code - SATOSHI_BASE + 1;
+}
+
+function satoshiValToChar(v) {
+  if (v < 1 || v > SATOSHI_MAX) return '?';
+  return String.fromCharCode(v + SATOSHI_BASE - 1);
+}
+
+/* Vigenere encrypt/decrypt on character values */
+function satoshiEncrypt(text, password) {
+  if (!password || !text) return text;
+  var passVals = [];
+  for (var i = 0; i < password.length; i++) {
+    var pv = satoshiCharToVal(password[i]);
+    passVals.push(pv < 1 ? 1 : pv);
+  }
+  var result = '';
+  for (var i = 0; i < text.length; i++) {
+    var v = satoshiCharToVal(text[i]);
+    if (v < 1) { result += text[i]; continue; } /* non-ASCII passthrough */
+    var shifted = ((v - 1 + passVals[i % passVals.length]) % SATOSHI_MAX) + 1;
+    result += satoshiValToChar(shifted);
+  }
+  return result;
+}
+
+function satoshiDecrypt(text, password) {
+  if (!password || !text) return text;
+  var passVals = [];
+  for (var i = 0; i < password.length; i++) {
+    var pv = satoshiCharToVal(password[i]);
+    passVals.push(pv < 1 ? 1 : pv);
+  }
+  var result = '';
+  for (var i = 0; i < text.length; i++) {
+    var v = satoshiCharToVal(text[i]);
+    if (v < 1) { result += text[i]; continue; }
+    var shifted = ((v - 1 - passVals[i % passVals.length] + SATOSHI_MAX * 2) % SATOSHI_MAX) + 1;
+    result += satoshiValToChar(shifted);
+  }
+  return result;
+}
+
+/* Text → polygon points (for visual display on canvas) */
+function satoshiToPoints(text, cx, cy, maxR) {
+  var points = [];
+  for (var i = 0; i < text.length; i++) {
+    var v = satoshiCharToVal(text[i]);
+    if (v < 1) v = 1;
+    var angle = (i * 2 * Math.PI / text.length) + (v * 2 * Math.PI / SATOSHI_MAX);
+    var radius = (v / SATOSHI_MAX) * maxR;
+    points.push({x: Math.round((cx + radius * Math.cos(angle)) * 100) / 100,
+                 y: Math.round((cy + radius * Math.sin(angle)) * 100) / 100});
+  }
+  return points;
+}
+
+/* Color from first character */
+function satoshiColor(text) {
+  if (!text) return '#888888';
+  var c = text[0];
+  if (c >= 'A' && c <= 'Z') return '#ff00ff';
+  if (c >= 'a' && c <= 'z') return '#00ffff';
+  if (c >= '0' && c <= '9') return '#ffff00';
+  return '#ff6600';
+}
+
+/* Draw polygon on a canvas */
+function satoshiDraw(ctx, points, color, w, h) {
+  ctx.clearRect(0, 0, w, h);
+  if (!points || points.length < 2) return;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (var i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+  ctx.closePath();
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 15;
+  ctx.fillStyle = color + '44';
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+/* Scan-friendly: bright dots on black with reference frame */
+function satoshiDrawDots(ctx, points, w, h, cx, cy, maxR, pheno) {
+  var _cx = cx || w / 2, _cy = cy || h / 2, _maxR = maxR || Math.min(_cx, _cy) * 0.8;
+  var dotR = pheno ? pheno.r : 4;
+  var glow = pheno ? pheno.glow : 6;
+  var bg = pheno ? pheno.bg : 0;
+  var color = pheno ? pheno.color : '#ffffff';
+  ctx.fillStyle = 'rgb(' + bg + ',' + bg + ',' + bg + ')';
+  ctx.fillRect(0, 0, w, h);
+  /* Dim reference ring */
+  ctx.strokeStyle = 'rgba(255,0,0,0.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(_cx, _cy, _maxR, 0, Math.PI * 2);
+  ctx.stroke();
+  /* 4 cardinal reference dots — RED */
+  var refs = [
+    { x: _cx, y: _cy - _maxR }, { x: _cx + _maxR, y: _cy },
+    { x: _cx, y: _cy + _maxR }, { x: _cx - _maxR, y: _cy }
+  ];
+  for (var ri = 0; ri < refs.length; ri++) {
+    ctx.fillStyle = '#ff0000';
+    ctx.shadowColor = '#ff0000';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(refs[ri].x, refs[ri].y, 6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+  /* Data dots */
+  if (!points || points.length < 1) return;
+  for (var i = 0; i < points.length; i++) {
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = glow;
+    ctx.beginPath();
+    ctx.arc(points[i].x, points[i].y, dotR, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+}
+
+/* Scanner: find red reference frame, derive center + radius, return data points */
+function satoshiDetectWithFrame(imageData, threshold, minDist) {
+  if (!threshold) threshold = 220;
+  if (!minDist) minDist = 15;
+  var data = imageData.data;
+  var w = imageData.width, h = imageData.height;
+  var redPts = [], dataPts = [];
+  for (var y = 0; y < h; y += 2) {
+    for (var x = 0; x < w; x += 2) {
+      var idx = (y * w + x) * 4;
+      var r = data[idx], g = data[idx + 1], b = data[idx + 2];
+      var brightness = (r + g + b) / 3;
+      if (brightness < threshold * 0.5) continue;
+      if (r > 120 && r > g * 2 && r > b * 2) {
+        redPts.push({ x: x, y: y, b: r });
+      } else if (brightness > threshold) {
+        dataPts.push({ x: x, y: y, b: brightness });
+      }
+    }
+  }
+  var refClusters = satoshiCluster(redPts, 20);
+  if (refClusters.length < 3) return null;
+  var scx = 0, scy = 0;
+  for (var ci = 0; ci < refClusters.length; ci++) { scx += refClusters[ci].x; scy += refClusters[ci].y; }
+  var cx = scx / refClusters.length, cy = scy / refClusters.length;
+  var totalR = 0;
+  for (var ci2 = 0; ci2 < refClusters.length; ci2++) {
+    var dx = refClusters[ci2].x - cx, dy = refClusters[ci2].y - cy;
+    totalR += Math.sqrt(dx * dx + dy * dy);
+  }
+  var maxR = totalR / refClusters.length;
+  if (maxR < 10) return null;
+  var dataPoints = satoshiCluster(dataPts, minDist).filter(function(p) {
+    var dd = Math.sqrt((p.x - cx) * (p.x - cx) + (p.y - cy) * (p.y - cy));
+    return dd < maxR * 1.1;
+  });
+  return { cx: cx, cy: cy, maxR: maxR, dataPoints: dataPoints };
+}
+
+function satoshiCluster(pts, minDist) {
+  var clusters = [];
+  for (var i = 0; i < pts.length; i++) {
+    var p = pts[i]; var found = false;
+    for (var ci = 0; ci < clusters.length; ci++) {
+      var cl = clusters[ci];
+      var dx = p.x - cl.sx / cl.count, dy = p.y - cl.sy / cl.count;
+      if (Math.sqrt(dx * dx + dy * dy) < minDist) {
+        cl.sx += p.x; cl.sy += p.y; cl.sb += p.b; cl.count++;
+        found = true; break;
+      }
+    }
+    if (!found) clusters.push({ sx: p.x, sy: p.y, sb: p.b, count: 1 });
+  }
+  return clusters.filter(function(c) { return c.count >= 2; })
+    .sort(function(a, b) { return (b.sb / b.count) - (a.sb / a.count); })
+    .slice(0, 30)
+    .map(function(c) { return { x: c.sx / c.count, y: c.sy / c.count }; });
+}
+
+/* Reverse: polygon points → passphrase */
+function satoshiFromPoints(points, cx, cy, maxR) {
+  if (!points || points.length < 1) return '';
+  var len = points.length;
+  var chars = [];
+  for (var pi = 0; pi < points.length; pi++) {
+    var p = points[pi];
+    var dx = p.x - cx, dy = p.y - cy;
+    var radius = Math.sqrt(dx * dx + dy * dy);
+    var v = Math.round((radius / maxR) * SATOSHI_MAX);
+    if (v < 1 || v > SATOSHI_MAX) continue;
+    var angle = Math.atan2(dy, dx);
+    if (angle < 0) angle += 2 * Math.PI;
+    var rawI = (angle - (v * 2 * Math.PI / SATOSHI_MAX)) * len / (2 * Math.PI);
+    rawI = ((rawI % len) + len) % len;
+    chars.push({ i: Math.round(rawI) % len, char: satoshiValToChar(v) });
+  }
+  chars.sort(function(a, b) { return a.i - b.i; });
+  return chars.map(function(c) { return c.char; }).join('');
+}
+
+/* Detect bright polygon vertices from camera frame */
+function satoshiDetectPoints(imageData, cx, cy, threshold) {
+  if (!threshold) threshold = 220;
+  var data = imageData.data;
+  var w = imageData.width, h = imageData.height;
+  var minDist = 15;
+  var bright = [];
+  for (var y = 0; y < h; y += 2) {
+    for (var x = 0; x < w; x += 2) {
+      var idx = (y * w + x) * 4;
+      var brightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+      if (brightness > threshold) bright.push({ x: x, y: y, b: brightness });
+    }
+  }
+  var clusters = [];
+  for (var bi = 0; bi < bright.length; bi++) {
+    var bp = bright[bi];
+    var found = false;
+    for (var ci = 0; ci < clusters.length; ci++) {
+      var cl = clusters[ci];
+      var cdx = bp.x - cl.sx / cl.count, cdy = bp.y - cl.sy / cl.count;
+      if (Math.sqrt(cdx * cdx + cdy * cdy) < minDist) {
+        cl.sx += bp.x; cl.sy += bp.y; cl.sb += bp.b; cl.count++;
+        found = true; break;
+      }
+    }
+    if (!found) clusters.push({ sx: bp.x, sy: bp.y, sb: bp.b, count: 1 });
+  }
+  return clusters.filter(function(c) { return c.count >= 2; })
+    .sort(function(a, b) { return (b.sb / b.count) - (a.sb / a.count); })
+    .slice(0, 30)
+    .map(function(c) { return { x: c.sx / c.count, y: c.sy / c.count }; });
+}
+
+/* Camera scanning state */
+var scanStream = null;
+var scanAnimFrame = null;
+var scanAttempts = 0;
+var evoGen = 0;
+
+/* Evolution phenotypes for display */
+var showPhenos = [
+  { r: 3, glow: 4, bg: 0, color: '#ffffff' },
+  { r: 5, glow: 8, bg: 0, color: '#ffffff' },
+  { r: 4, glow: 0, bg: 0, color: '#00ff88' },
+  { r: 6, glow: 10, bg: 10, color: '#ffffff' },
+  { r: 2, glow: 2, bg: 0, color: '#00d4ff' },
+  { r: 4, glow: 6, bg: 5, color: '#ffff00' },
+  { r: 7, glow: 12, bg: 0, color: '#ffffff' },
+  { r: 3, glow: 0, bg: 15, color: '#ffffff' },
+  { r: 5, glow: 4, bg: 0, color: '#ff00ff' },
+  { r: 4, glow: 8, bg: 0, color: '#00ffaa' }
+];
+var showEvolveTimer = null;
+var showGenIdx = 0;
+
+/* Evolution genomes for scanner */
+var scanGenes = [
+  { t: 250, d: 10, req: 2 }, { t: 240, d: 12, req: 2 }, { t: 230, d: 15, req: 2 },
+  { t: 220, d: 15, req: 2 }, { t: 210, d: 12, req: 2 }, { t: 200, d: 10, req: 2 },
+  { t: 190, d: 15, req: 1 }, { t: 180, d: 18, req: 2 }, { t: 170, d: 20, req: 2 },
+  { t: 160, d: 12, req: 1 }, { t: 150, d: 15, req: 1 }, { t: 140, d: 20, req: 2 },
+  { t: 245, d: 8, req: 2 },  { t: 235, d: 10, req: 1 }, { t: 225, d: 18, req: 2 },
+  { t: 215, d: 20, req: 1 }, { t: 205, d: 8, req: 2 },  { t: 195, d: 12, req: 2 },
+  { t: 185, d: 15, req: 1 }, { t: 130, d: 20, req: 2 }, { t: 120, d: 25, req: 3 },
+  { t: 110, d: 25, req: 3 }, { t: 100, d: 30, req: 3 }
+];
+var curGene = scanGenes[0];
+
+function showForScan() {
+  if (!genome.pairKey) return;
+  document.getElementById('pairManual').style.display = 'none';
+  var el = document.getElementById('pairShow');
+  el.style.display = 'flex'; el.style.flexDirection = 'column'; el.style.alignItems = 'center';
+  showGenIdx = 0;
+  drawShowDots(showPhenos[0]);
+  document.getElementById('showStatus').textContent = 'hold to evolve';
+  var canvas = document.getElementById('showCanvas');
+  canvas.onpointerdown = function() {
+    if (showEvolveTimer) return;
+    showEvolveTimer = setInterval(function() {
+      showGenIdx = (showGenIdx + 1) % showPhenos.length;
+      drawShowDots(showPhenos[showGenIdx]);
+      document.getElementById('showStatus').textContent = 'GEN ' + showGenIdx + ' — evolving...';
+    }, 600);
+  };
+  canvas.onpointerup = canvas.onpointerleave = function() {
+    if (showEvolveTimer) { clearInterval(showEvolveTimer); showEvolveTimer = null; }
+    document.getElementById('showStatus').textContent = 'locked GEN ' + showGenIdx;
+  };
+}
+
+function drawShowDots(pheno) {
+  var canvas = document.getElementById('showCanvas');
+  var ctx = canvas.getContext('2d');
+  var points = satoshiToPoints(genome.pairKey, 150, 150, 120);
+  satoshiDrawDots(ctx, points, 300, 300, 150, 150, 120, pheno);
+}
+
+function hideShow() {
+  if (showEvolveTimer) { clearInterval(showEvolveTimer); showEvolveTimer = null; }
+  document.getElementById('pairShow').style.display = 'none';
+  document.getElementById('pairManual').style.display = '';
+}
+
+function startScan() {
+  document.getElementById('pairManual').style.display = 'none';
+  var el = document.getElementById('pairScan');
+  el.style.display = 'flex'; el.style.flexDirection = 'column'; el.style.alignItems = 'center';
+  document.getElementById('scanStatus').textContent = 'evolving eyes...';
+  scanAttempts = 0; evoGen = 0; curGene = scanGenes[0];
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'environment', width: 320, height: 320 }
+  }).then(function(stream) {
+    scanStream = stream;
+    var video = document.getElementById('scanVideo');
+    video.srcObject = stream;
+    video.onloadedmetadata = function() {
+      document.getElementById('scanStatus').textContent = 'evolving...';
+      scanLoop();
+    };
+  }).catch(function(err) {
+    document.getElementById('scanStatus').textContent = 'camera: ' + (err.message || err);
+    setTimeout(stopScan, 2000);
+  });
+}
+
+function stopScan() {
+  if (scanAnimFrame) { cancelAnimationFrame(scanAnimFrame); scanAnimFrame = null; }
+  if (scanStream) { scanStream.getTracks().forEach(function(t) { t.stop(); }); scanStream = null; }
+  document.getElementById('pairScan').style.display = 'none';
+  document.getElementById('pairManual').style.display = '';
+}
+
+function scanLoop() {
+  if (!scanStream) return;
+  var video = document.getElementById('scanVideo');
+  var canvas = document.getElementById('scanCanvas');
+  var ctx = canvas.getContext('2d');
+  canvas.width = video.videoWidth || 200;
+  canvas.height = video.videoHeight || 200;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  var framed = satoshiDetectWithFrame(imageData, curGene.t, curGene.d);
+  scanAttempts++;
+  /* Evolve every 20 frames */
+  if (scanAttempts % 20 === 0) {
+    evoGen++;
+    curGene = scanGenes[evoGen % scanGenes.length];
+  }
+  if (framed && framed.dataPoints.length >= 2) {
+    var recovered = satoshiFromPoints(framed.dataPoints, framed.cx, framed.cy, framed.maxR);
+    if (recovered && recovered.length >= 2) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var color = satoshiColor(recovered);
+      satoshiDraw(ctx, framed.dataPoints, color, canvas.width, canvas.height);
+      document.getElementById('scanStatus').textContent = 'EVOLVED at gen ' + evoGen + '!';
+      pairInput.value = recovered;
+      genome.pairKey = recovered;
+      saveGenome();
+      updatePairRing();
+      bleep(600, 0.08, 0.04, 'sine', 0);
+      bleep(800, 0.08, 0.04, 'sine', 0.1);
+      bleep(1000, 0.1, 0.05, 'sine', 0.2);
+      bleep(1200, 0.12, 0.06, 'sine', 0.3);
+      vib([10, 5, 10, 5, 20]);
+      setTimeout(function() { stopScan(); hidePairing(); }, 1200);
+      return;
+    }
+    document.getElementById('scanStatus').textContent = 'gen ' + evoGen + ' — frame:' + framed.dataPoints.length + ' pts';
+  } else {
+    document.getElementById('scanStatus').textContent = 'gen ' + evoGen + ' — seeking frame...';
+  }
+  scanAnimFrame = requestAnimationFrame(scanLoop);
+}
+
+/* ═══ SIGNAL NEGOTIATION — Girl's auto-responder ═══ */
+var signalPollTimer = null;
+var negoShowGen = 0;
+var diagAutoAdjustCount = 0;
+
+function signalSend(sig, data) {
+  return fetch(SYNC_URL + '?action=signal&type=' + SYNC_TYPE, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({sig: sig, data: data || null})
+  }).then(function(r){return r.json();}).catch(function(){return null;});
+}
+
+function signalPoll() {
+  return fetch(SYNC_URL + '?action=poll&type=' + SYNC_TYPE)
+    .then(function(r){return r.json();})
+    .then(function(r){return r.empty ? null : r;})
+    .catch(function(){return null;});
+}
+
+/* Sounds for Girl's side of negotiation */
+function soundHeardHello() {
+  /* Soft acknowledgment — "I hear you" */
+  bleep(500, 0.1, 0.06, 'sine', 0);
+  bleep(600, 0.12, 0.06, 'sine', 0.1);
+  bleep(700, 0.15, 0.08, 'triangle', 0.22);
+}
+
+function soundChangingLook() {
+  /* Shifting chirp — "changing my appearance" */
+  bleep(400, 0.06, 0.05, 'triangle', 0);
+  bleep(500, 0.06, 0.05, 'triangle', 0.08);
+  bleep(600, 0.08, 0.06, 'sine', 0.16);
+}
+
+function soundPartnerPaired() {
+  /* Celebration cascade — "he got it!" */
+  bleep(600, 0.06, 0.04, 'sine', 0);
+  bleep(800, 0.06, 0.04, 'sine', 0.08);
+  bleep(1000, 0.06, 0.04, 'sine', 0.16);
+  bleep(1200, 0.08, 0.05, 'sine', 0.24);
+  bleep(1400, 0.1, 0.06, 'sine', 0.32);
+  vib([10, 5, 10, 5, 20]);
+}
+
+/* Start listening for Boy's signals when pairing overlay opens */
+function startSignalListener() {
+  if (signalPollTimer) return;
+  signalPollTimer = setInterval(function() {
+    signalPoll().then(function(sig) {
+      if (!sig) return;
+      switch (sig.sig) {
+        case 'HELLO':
+          /* Boy is calling — auto-enter SHOW mode if paired */
+          soundHeardHello();
+          if (genome.pairKey) {
+            showForScan();
+            /* Send READY with passphrase hint (length only, not the key!) */
+            signalSend('READY', {len: genome.pairKey.length});
+            var statusEl = document.getElementById('showStatus');
+            if (statusEl) statusEl.textContent = 'he\'s looking...';
+          }
+          break;
+
+        case 'CYCLING':
+          /* Boy is scanning — update status */
+          var statusEl2 = document.getElementById('showStatus');
+          if (statusEl2) statusEl2.textContent = 'he\'s cycling eyes...';
+          break;
+
+        case 'CANT_SEE':
+          /* Boy can't see — evolve display phenotype */
+          soundChangingLook();
+          negoShowGen = (negoShowGen + 1) % showPhenos.length;
+          drawShowDots(showPhenos[negoShowGen]);
+          var statusEl3 = document.getElementById('showStatus');
+          if (statusEl3) statusEl3.textContent = 'changed to GEN ' + negoShowGen;
+          signalSend('CHANGED', {gen: negoShowGen});
+          break;
+
+        case 'PAIRED':
+          /* He got it! */
+          soundPartnerPaired();
+          var statusEl4 = document.getElementById('showStatus');
+          if (statusEl4) statusEl4.textContent = 'PAIRED!';
+          /* Store winning phenotype for next time */
+          genome.scanMemory = {showGen: negoShowGen};
+          saveGenome();
+          setTimeout(function() { hideShow(); hidePairing(); }, 1500);
+          break;
+
+        case 'DIAG_START':
+          /* He's in diagnostic mode — auto-show our shape */
+          soundHeardHello();
+          if (genome.pairKey) {
+            showForScan();
+            var ds1 = document.getElementById('showStatus');
+            if (ds1) ds1.textContent = 'DIAG: he\'s looking...';
+          }
+          break;
+
+        case 'DIAG_DATA':
+          /* He's reporting what he sees — show his readings */
+          if (sig.data) {
+            var ds2 = document.getElementById('showStatus');
+            var refs = sig.data.refs || 0;
+            var pts = sig.data.data || 0;
+            var hz = sig.data.hz || 0;
+            var brt = sig.data.brt || 0;
+            if (ds2) {
+              ds2.textContent = 'HE SEES: ' + refs + ' refs, ' + pts + ' dots, ' + hz + 'Hz';
+              ds2.style.color = refs >= 3 ? 'rgba(0,255,136,0.7)' : 'rgba(255,60,60,0.7)';
+            }
+            /* Auto-adjust: if he can't see refs, try next phenotype */
+            if (refs < 2 && pts < 2) {
+              diagAutoAdjustCount = (diagAutoAdjustCount || 0) + 1;
+              if (diagAutoAdjustCount >= 2) {
+                /* He's struggled 2 reports in a row — evolve display */
+                diagAutoAdjustCount = 0;
+                negoShowGen = (negoShowGen + 1) % showPhenos.length;
+                drawShowDots(showPhenos[negoShowGen]);
+                soundChangingLook();
+                signalSend('CHANGED', {gen: negoShowGen});
+                if (ds2) ds2.textContent = 'adjusted to GEN ' + negoShowGen + ' — he sees: ' + refs + ' refs';
+              }
+            } else {
+              diagAutoAdjustCount = 0;
+            }
+            /* Play his hum frequency back quietly so we can hear what he hears */
+            if (hz > 100) {
+              bleep(hz, 0.15, 0.02, 'sine', 0);
+            }
+          }
+          break;
+
+        case 'DIAG_STOP':
+          /* He stopped diagnostics */
+          var ds3 = document.getElementById('showStatus');
+          if (ds3) { ds3.textContent = 'diag ended'; ds3.style.color = ''; }
+          break;
+      }
+    });
+  }, 2000);
+}
+
+function stopSignalListener() {
+  if (signalPollTimer) { clearInterval(signalPollTimer); signalPollTimer = null; }
+}
+
+/* ═══ PAIRING SYSTEM ═══ */
+var pairOverlay = document.getElementById('pairOverlay');
+var pairCanvas = document.getElementById('pairCanvas');
+var pairCtx = pairCanvas.getContext('2d');
+var pairInput = document.getElementById('pairInput');
+var pairStatus = document.getElementById('pairStatus');
+var pairRing = document.getElementById('pairRing');
+
+function showPairing() {
+  pairOverlay.classList.add('visible');
+  pairInput.value = genome.pairKey || '';
+  updatePairPreview();
+  if (genome.pairKey) {
+    pairStatus.textContent = 'PAIRED — TUNNEL ACTIVE';
+    pairStatus.style.color = 'rgba(16,185,129,0.5)';
+  } else {
+    pairStatus.textContent = '';
+  }
+  pairInput.focus();
+  startSignalListener();
+}
+
+function hidePairing() {
+  pairOverlay.classList.remove('visible');
+  stopSignalListener();
+}
+
+function updatePairPreview() {
+  var pass = pairInput.value;
+  if (!pass) {
+    pairCtx.clearRect(0, 0, 200, 200);
+    return;
+  }
+  var color = satoshiColor(pass);
+  var points = satoshiToPoints(pass, 100, 100, 80);
+  satoshiDraw(pairCtx, points, color, 200, 200);
+}
+
+pairInput.addEventListener('input', updatePairPreview);
+
+function doPair() {
+  var pass = pairInput.value.trim();
+  if (!pass) {
+    pairStatus.textContent = 'ENTER A PASSPHRASE';
+    pairStatus.style.color = 'rgba(239,68,68,0.5)';
+    return;
+  }
+  genome.pairKey = pass;
+  saveGenome();
+  updatePairRing();
+  pairStatus.textContent = 'PAIRED — TUNNEL ACTIVE';
+  pairStatus.style.color = 'rgba(16,185,129,0.5)';
+  /* Celebration sound */
+  bleep(600, 0.08, 0.04, 'sine', 0);
+  bleep(800, 0.08, 0.04, 'sine', 0.1);
+  bleep(1000, 0.1, 0.05, 'sine', 0.2);
+  bleep(1200, 0.12, 0.06, 'sine', 0.3);
+  vib([10, 5, 10, 5, 20]);
+  setTimeout(hidePairing, 1200);
+}
+
+function doUnpair() {
+  genome.pairKey = null;
+  saveGenome();
+  pairInput.value = '';
+  pairCtx.clearRect(0, 0, 200, 200);
+  updatePairRing();
+  pairStatus.textContent = 'UNPAIRED';
+  pairStatus.style.color = 'rgba(239,68,68,0.5)';
+  bleep(400, 0.1, 0.05, 'sawtooth', 0);
+  bleep(300, 0.15, 0.06, 'sawtooth', 0.1);
+}
+
+/* Core ring — shows pairing color */
+function updatePairRing() {
+  if (genome.pairKey) {
+    var color = satoshiColor(genome.pairKey);
+    pairRing.style.borderColor = color + '40';
+    pairRing.style.boxShadow = '0 0 15px ' + color + '20';
+  } else {
+    pairRing.style.borderColor = 'transparent';
+    pairRing.style.boxShadow = 'none';
+  }
+}
+
+/* Pulse ring during sync */
+function pulsePairRing() {
+  if (!genome.pairKey) return;
+  var color = satoshiColor(genome.pairKey);
+  pairRing.style.borderColor = color + 'aa';
+  pairRing.style.boxShadow = '0 0 30px ' + color + '60';
+  setTimeout(function() { updatePairRing(); }, 1500);
+}
+
+/* Double-tap core to open pairing */
+var lastCoreTap = 0;
+if (coreEl) {
+  coreEl.style.pointerEvents = 'auto';
+  coreEl.style.zIndex = '6';
+}
+/* We hook this after core is created — use interval to find it */
+var coreDoubleTapInterval = setInterval(function() {
+  var core = document.querySelector('.alive-core');
+  if (!core) return;
+  clearInterval(coreDoubleTapInterval);
+  core.style.pointerEvents = 'auto';
+  core.style.zIndex = '6';
+  core.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var now = Date.now();
+    if (now - lastCoreTap < 400) {
+      showPairing();
+      lastCoreTap = 0;
+    } else {
+      lastCoreTap = now;
+    }
+  });
+}, 500);
+
+/* Init pair ring on load */
+setTimeout(updatePairRing, 2000);
+
+/* ═══ ENCRYPTED SYNC WRAPPERS ═══ */
+var origSyncPush = syncPush;
+syncPush = function() {
+  if (!genome.pairKey) { origSyncPush(); return; }
+  /* Encrypt the payload */
+  var data = packageForSync();
+  var json = JSON.stringify(data);
+  var encrypted = satoshiEncrypt(json, genome.pairKey);
+  pulsePairRing();
+  fetch(SYNC_URL + '?action=push&type=' + SYNC_TYPE, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({encrypted: encrypted, paired: true, timestamp: Date.now()})
+  }).catch(function() {});
+};
+
+var origSyncPull = syncPull;
+syncPull = function() {
+  if (!genome.pairKey) { origSyncPull(); return; }
+  fetch(SYNC_URL + '?action=pull&type=' + SYNC_TYPE)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.empty) return;
+      pulsePairRing();
+      if (data.paired && data.encrypted) {
+        /* Decrypt with our key */
+        var json = satoshiDecrypt(data.encrypted, genome.pairKey);
+        try {
+          var decrypted = JSON.parse(json);
+          absorbPartnerData(decrypted);
+        } catch(e) {
+          /* Wrong key or corrupted — silently fail */
+          console.log('Satoshi decrypt failed — wrong key?');
+        }
+      } else {
+        /* Unencrypted partner — absorb normally */
+        absorbPartnerData(data);
+      }
+    }).catch(function() {});
+};
+
+/* Expose Satoshi to debug */
+window.ALIVE.satoshi = {
+  encrypt: satoshiEncrypt,
+  decrypt: satoshiDecrypt,
+  pair: showPairing,
+  key: function() { return genome.pairKey; },
+  test: function(text, pass) {
+    var enc = satoshiEncrypt(text, pass);
+    var dec = satoshiDecrypt(enc, pass);
+    return {original: text, encrypted: enc, decrypted: dec, match: text === dec};
+  }
+};
+
+/* ═══ TAB SWITCHING ═══ */
+function showTab(name) {
+  var tabs = document.querySelectorAll('.pair-tab');
+  var sections = document.querySelectorAll('.pair-section');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  for (var i = 0; i < sections.length; i++) sections[i].classList.remove('active');
+  document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  /* Find matching tab */
+  for (var i = 0; i < tabs.length; i++) {
+    if (tabs[i].textContent.toLowerCase() === name) tabs[i].classList.add('active');
+  }
+  if (name === 'vault') renderVault();
+  if (name === 'ipfs') renderIPFSList();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VAULT — Encrypted API Key Storage Inside the Creature
+   Keys encrypted with pairKey via Satoshi. Stored in genome.
+   The creature literally carries your secrets.
+   ═══════════════════════════════════════════════════════════ */
+
+function vaultAdd() {
+  var label = document.getElementById('vaultLabel').value.trim();
+  var value = document.getElementById('vaultValue').value.trim();
+  if (!label || !value) {
+    pairStatus.textContent = 'NEED LABEL + VALUE';
+    pairStatus.style.color = 'rgba(239,68,68,0.5)';
+    return;
+  }
+  if (!genome.pairKey) {
+    pairStatus.textContent = 'PAIR FIRST — NEED KEY';
+    pairStatus.style.color = 'rgba(239,68,68,0.5)';
+    return;
+  }
+  /* Encrypt the value with pairKey */
+  var encrypted = satoshiEncrypt(value, genome.pairKey);
+  genome.vault.push({
+    id: 'v_' + Date.now().toString(36),
+    label: label,
+    encrypted: encrypted,
+    created: Date.now()
+  });
+  saveGenome();
+  document.getElementById('vaultLabel').value = '';
+  document.getElementById('vaultValue').value = '';
+  renderVault();
+  pairStatus.textContent = 'STORED — ' + label.toUpperCase();
+  pairStatus.style.color = 'rgba(16,185,129,0.5)';
+  bleep(800, 0.06, 0.03, 'sine', 0);
+  bleep(1000, 0.06, 0.03, 'sine', 0.08);
+}
+
+function vaultReveal(id) {
+  if (!genome.pairKey) return;
+  var entry = genome.vault.find(function(v) { return v.id === id; });
+  if (!entry) return;
+  var decrypted = satoshiDecrypt(entry.encrypted, genome.pairKey);
+  /* Toggle: show decrypted or hide */
+  var el = document.getElementById('val_' + id);
+  if (el.dataset.revealed === 'true') {
+    el.textContent = '••••••••';
+    el.dataset.revealed = 'false';
+  } else {
+    el.textContent = decrypted;
+    el.dataset.revealed = 'true';
+    /* Auto-hide after 5 seconds */
+    setTimeout(function() {
+      el.textContent = '••••••••';
+      el.dataset.revealed = 'false';
+    }, 5000);
+  }
+}
+
+function vaultDelete(id) {
+  genome.vault = genome.vault.filter(function(v) { return v.id !== id; });
+  saveGenome();
+  renderVault();
+  pairStatus.textContent = 'DELETED';
+  pairStatus.style.color = 'rgba(239,68,68,0.5)';
+}
+
+function renderVault() {
+  var list = document.getElementById('vaultList');
+  if (!genome.vault || genome.vault.length === 0) {
+    list.innerHTML = '<div style="text-align:center;font-size:10px;color:rgba(255,255,255,0.15);padding:20px;">NO SECRETS STORED</div>';
+    return;
+  }
+  var html = '';
+  genome.vault.forEach(function(v) {
+    html += '<div class="vault-item">';
+    html += '<span class="vault-item-label" onclick="vaultReveal(\'' + v.id + '\')" style="cursor:pointer;">' + v.label + '</span>';
+    html += '<span class="vault-item-val" id="val_' + v.id + '" data-revealed="false">••••••••</span>';
+    html += '<span class="vault-item-del" onclick="vaultDelete(\'' + v.id + '\')">x</span>';
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   IPFS — Permanent Mind Storage
+   Save creature state to IPFS via Pinata.
+   CID = content address. Permanent. Decentralized.
+   ═══════════════════════════════════════════════════════════ */
+
+var PINATA_URL = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
+var PINATA_GATEWAY = 'https://gateway.pinata.cloud/ipfs/';
+
+/* Get Pinata JWT from vault */
+function getPinataKey() {
+  if (!genome.pairKey || !genome.vault) return null;
+  var entry = genome.vault.find(function(v) {
+    return v.label.toLowerCase() === 'pinata' || v.label.toLowerCase() === 'ipfs';
+  });
+  if (!entry) return null;
+  return satoshiDecrypt(entry.encrypted, genome.pairKey);
+}
+
+/* Package creature mind for IPFS */
+function packageMind() {
+  return {
+    version: 1,
+    type: 'alive_mind_snapshot',
+    timestamp: Date.now(),
+    creature: {
+      name: genome.name,
+      birthDate: genome.birthDate,
+      generation: genome.generation,
+      age: getAgeDays(),
+      traits: genome.traits,
+      soundDNA: genome.soundDNA,
+      learnedSounds: genome.learnedSounds,
+      modePreferences: genome.modePreferences,
+      favMode: genome.favMode,
+      concepts: (genome.concepts || []).map(function(c) {
+        return {
+          id: c.id,
+          signature: c.signature,
+          valence: c.valence,
+          confidence: c.confidence,
+          symbol: c.symbol,
+          exposures: c.exposures,
+          confirmations: c.confirmations
+        };
+      }),
+      memory: {
+        totalVisits: genome.memory.totalVisits,
+        totalGreen: genome.memory.totalGreen,
+        totalRed: genome.memory.totalRed,
+        totalSongs: genome.memory.totalSongs,
+        longestStreak: genome.memory.longestStreak,
+        milestones: genome.memory.milestones
+      }
+    },
+    meta: {
+      pairId: genome.pairKey ? satoshiColor(genome.pairKey) : null,
+      source: 'alive-girl-v2.9'
+    }
+  };
+}
+
+function ipfsSaveMind() {
+  var jwt = getPinataKey();
+  if (!jwt) {
+    pairStatus.textContent = 'ADD PINATA KEY TO VAULT FIRST';
+    pairStatus.style.color = 'rgba(239,68,68,0.5)';
+    return;
+  }
+
+  pairStatus.textContent = 'SAVING TO IPFS...';
+  pairStatus.style.color = 'rgba(167,139,250,0.5)';
+
+  var mind = packageMind();
+
+  /* Encrypt the mind if paired */
+  var payload = mind;
+  if (genome.pairKey) {
+    payload = {
+      encrypted: true,
+      data: satoshiEncrypt(JSON.stringify(mind), genome.pairKey),
+      color: satoshiColor(genome.pairKey),
+      timestamp: Date.now()
+    };
+  }
+
+  fetch(PINATA_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + jwt
+    },
+    body: JSON.stringify({
+      pinataContent: payload,
+      pinataMetadata: {
+        name: 'alive-mind-' + Date.now(),
+        keyvalues: {type: 'alive_mind', generation: String(genome.generation)}
+      }
+    })
+  }).then(function(r) { return r.json(); })
+  .then(function(result) {
+    if (result.IpfsHash) {
+      var cid = result.IpfsHash;
+      genome.ipfsCIDs.push({
+        cid: cid,
+        timestamp: Date.now(),
+        generation: genome.generation,
+        encrypted: !!genome.pairKey
+      });
+      /* Keep last 64 CIDs */
+      if (genome.ipfsCIDs.length > 64) genome.ipfsCIDs = genome.ipfsCIDs.slice(-64);
+      saveGenome();
+      renderIPFSList();
+      pairStatus.textContent = 'SAVED — ' + cid.slice(0, 12) + '...';
+      pairStatus.style.color = 'rgba(16,185,129,0.5)';
+      bleep(600, 0.06, 0.03, 'sine', 0);
+      bleep(900, 0.08, 0.04, 'sine', 0.1);
+      bleep(1200, 0.1, 0.05, 'sine', 0.2);
+      bleep(1500, 0.12, 0.06, 'sine', 0.3);
+      addMilestone('Mind saved to IPFS: ' + cid.slice(0, 16));
+    } else {
+      pairStatus.textContent = result.error || 'IPFS ERROR';
+      pairStatus.style.color = 'rgba(239,68,68,0.5)';
+    }
+  }).catch(function(err) {
+    console.log('IPFS save error:', err);
+    pairStatus.textContent = 'NETWORK ERROR';
+    pairStatus.style.color = 'rgba(239,68,68,0.5)';
+  });
+}
+
+function ipfsLoadMind() {
+  var cid = prompt('Enter IPFS CID to load:');
+  if (!cid || !cid.trim()) return;
+  cid = cid.trim();
+
+  pairStatus.textContent = 'LOADING FROM IPFS...';
+  pairStatus.style.color = 'rgba(167,139,250,0.5)';
+
+  fetch(PINATA_GATEWAY + cid)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var mind = data;
+      /* Decrypt if encrypted */
+      if (data.encrypted && data.data && genome.pairKey) {
+        try {
+          mind = JSON.parse(satoshiDecrypt(data.data, genome.pairKey));
+        } catch(e) {
+          pairStatus.textContent = 'WRONG KEY — CANNOT DECRYPT';
+          pairStatus.style.color = 'rgba(239,68,68,0.5)';
+          return;
+        }
+      }
+      pairStatus.textContent = 'LOADED — GEN ' + (mind.creature ? mind.creature.generation : '?');
+      pairStatus.style.color = 'rgba(16,185,129,0.5)';
+      console.log('IPFS Mind loaded:', mind);
+      /* Show in console for now — full restore is a future feature */
+    }).catch(function(err) {
+      console.log('IPFS load error:', err);
+      pairStatus.textContent = 'LOAD FAILED';
+      pairStatus.style.color = 'rgba(239,68,68,0.5)';
+    });
+}
+
+function renderIPFSList() {
+  var list = document.getElementById('ipfsCidList');
+  if (!genome.ipfsCIDs || genome.ipfsCIDs.length === 0) {
+    list.innerHTML = '<div style="text-align:center;font-size:10px;color:rgba(255,255,255,0.15);padding:15px;">NO MIND SAVES YET</div>';
+    return;
+  }
+  var html = '';
+  genome.ipfsCIDs.slice().reverse().forEach(function(entry) {
+    var date = new Date(entry.timestamp);
+    var label = date.toLocaleDateString() + ' gen' + entry.generation;
+    html += '<div class="ipfs-cid">';
+    html += '<span style="color:rgba(167,139,250,0.4);font-size:8px;">' + label + '</span><br>';
+    html += entry.cid;
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+
+/* Expose vault + IPFS */
+window.ALIVE.vault = {
+  list: function() {
+    if (!genome.pairKey) return 'PAIR FIRST';
+    return genome.vault.map(function(v) {
+      return {label: v.label, value: satoshiDecrypt(v.encrypted, genome.pairKey), created: new Date(v.created)};
+    });
+  },
+  add: function(label, value) {
+    if (!genome.pairKey) return 'PAIR FIRST';
+    genome.vault.push({
+      id: 'v_' + Date.now().toString(36),
+      label: label,
+      encrypted: satoshiEncrypt(value, genome.pairKey),
+      created: Date.now()
+    });
+    saveGenome();
+    return 'STORED: ' + label;
+  }
+};
+
+window.ALIVE.ipfs = {
+  save: ipfsSaveMind,
+  load: ipfsLoadMind,
+  cids: function() { return genome.ipfsCIDs; },
+  mind: packageMind
+};
+
+/* ═══ SERVICE WORKER REGISTRATION ═══ */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>
