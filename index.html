@@ -4738,7 +4738,10 @@ function loadCachedEntitlements() {
     var raw = localStorage.getItem(ENT_CACHE_KEY);
     if (!raw) return false;
     var obj = JSON.parse(raw);
-    if (Date.now() - obj.ts > ENT_CACHE_TTL) return false;
+    if (Date.now() - obj.ts > ENT_CACHE_TTL) {
+      localStorage.removeItem(ENT_CACHE_KEY); /* Prune expired entry */
+      return false;
+    }
     applyEntitlements(obj.data);
     return true;
   } catch(e) { return false; }
@@ -4852,7 +4855,10 @@ function completeTraining() {
     return;
   }
   trainingSamples.sort(function(a, b) { return a - b; });
-  var median = trainingSamples[Math.floor(trainingSamples.length / 2)];
+  var mid    = Math.floor(trainingSamples.length / 2);
+  var median = trainingSamples.length % 2 === 0
+    ? (trainingSamples[mid - 1] + trainingSamples[mid]) / 2
+    : trainingSamples[mid];
   trainedShapes[trainingTarget] = median;
   soundUnlock();
   evolveTrait('musicality', 4);
@@ -5044,16 +5050,16 @@ function rhythmTick() {
   if (now - rhythmLastBeat >= BEAT_MS) {
     rhythmLastBeat = now;
     rhythmBeatNum++;
-    var scaleIdx = rhythmBeatNum % PENTA.length;
+    var pentaIdx = rhythmBeatNum % PENTA.length; /* Index into 10-note pentatonic array */
     rhythmNotes.push({
       x:        W,
-      freq:     PENTA[scaleIdx],
-      shapeIdx: rhythmBeatNum % 5,
+      freq:     PENTA[pentaIdx],
+      shapeIdx: rhythmBeatNum % 5, /* 5 shapes; 2 pentatonic octaves map across them */
       hit:      false,
       missed:   false
     });
     /* Quiet metronome tick */
-    bleep(PENTA[scaleIdx], 0.12, 0.04, 'sine', 0);
+    bleep(PENTA[pentaIdx], 0.12, 0.04, 'sine', 0);
   }
 
   /* Move all notes left */
@@ -5242,6 +5248,10 @@ var playerProgress = {
 
 var XP_PER_LEVEL = [100, 150, 200, 275, 350, 450, 550, 650, 800, 1000];
 
+function xpThreshold(level) {
+  return XP_PER_LEVEL[Math.min(level - 1, XP_PER_LEVEL.length - 1)];
+}
+
 function gainXP(amount, reason) {
   if (!CAP.craft) return;
   playerProgress.xp += amount;
@@ -5254,13 +5264,11 @@ function gainXP(amount, reason) {
   var as = document.getElementById('aliveScreen');
   if (as) { as.appendChild(pop); setTimeout(function() { pop.remove(); }, 1200); }
   /* Level-up check */
-  var threshold = XP_PER_LEVEL[Math.min(playerProgress.level - 1,
-                                        XP_PER_LEVEL.length - 1)];
+  var threshold = xpThreshold(playerProgress.level);
   if (playerProgress.xp >= threshold) {
     playerProgress.xp     -= threshold;
     playerProgress.level++;
-    playerProgress.xpToNext = XP_PER_LEVEL[Math.min(playerProgress.level - 1,
-                                                     XP_PER_LEVEL.length - 1)];
+    playerProgress.xpToNext = xpThreshold(playerProgress.level);
     var nextShape = playerProgress.unlockedShapes.length;
     if (nextShape < 5 &&
         playerProgress.unlockedShapes.indexOf(nextShape) === -1) {
@@ -5279,9 +5287,17 @@ function gainXP(amount, reason) {
    emotionWeights always persists (free memory).
    shapeLevels, trainedShapes, playerProgress only saved when
    Craft is entitled (they are meaningless otherwise).         */
-var V2_SAVE_KEY = 'alive_v2';
+var V2_SAVE_KEY  = 'alive_v2';
+var v2StateDirty = false; /* Only write to localStorage when state changed */
 
 function saveV2State() {
+  v2StateDirty = true; /* Mark dirty; actual flush via flushV2State */
+  flushV2State();
+}
+
+function flushV2State() {
+  if (!v2StateDirty) return;
+  v2StateDirty = false;
   try {
     var obj = { emotionWeights: emotionWeights, ts: Date.now() };
     if (CAP.craft) {
@@ -5300,20 +5316,44 @@ function loadV2State() {
     var raw = localStorage.getItem(V2_SAVE_KEY);
     if (!raw) return;
     var obj = JSON.parse(raw);
-    if (obj.emotionWeights) emotionWeights = obj.emotionWeights;
+    if (obj.emotionWeights && typeof obj.emotionWeights === 'object')
+      emotionWeights = obj.emotionWeights;
     if (CAP.craft) {
-      if (Array.isArray(obj.shapeLevels))    shapeLevels    = obj.shapeLevels;
-      if (obj.trainedShapes)                 trainedShapes  = obj.trainedShapes;
-      if (obj.playerProgress)
-        playerProgress = Object.assign(playerProgress, obj.playerProgress);
-      if (typeof obj.bossLevel      === 'number') bossLevel      = obj.bossLevel;
-      if (typeof obj.rhythmMaxCombo === 'number') rhythmMaxCombo = obj.rhythmMaxCombo;
+      /* Validate shapeLevels: must be an array of exactly 5 integers 1–5 */
+      if (Array.isArray(obj.shapeLevels) && obj.shapeLevels.length === 5) {
+        var validLevels = obj.shapeLevels.every(function(v) {
+          return Number.isInteger(v) && v >= 1 && v <= 5;
+        });
+        if (validLevels) shapeLevels = obj.shapeLevels;
+      }
+      if (obj.trainedShapes && typeof obj.trainedShapes === 'object')
+        trainedShapes = obj.trainedShapes;
+      /* Selectively copy known safe playerProgress properties */
+      if (obj.playerProgress && typeof obj.playerProgress === 'object') {
+        var pp = obj.playerProgress;
+        if (typeof pp.level === 'number'   && pp.level >= 1)  playerProgress.level   = pp.level;
+        if (typeof pp.xp    === 'number'   && pp.xp    >= 0)  playerProgress.xp      = pp.xp;
+        if (typeof pp.xpToNext === 'number' && pp.xpToNext > 0)
+          playerProgress.xpToNext = pp.xpToNext;
+        if (Array.isArray(pp.unlockedShapes))
+          playerProgress.unlockedShapes = pp.unlockedShapes.filter(function(v) {
+            return Number.isInteger(v) && v >= 0 && v < 5;
+          });
+        if (Array.isArray(pp.discoveredEmotions))
+          playerProgress.discoveredEmotions = pp.discoveredEmotions.filter(function(v) {
+            return typeof v === 'string';
+          });
+      }
+      if (typeof obj.bossLevel === 'number' && obj.bossLevel >= 1 && obj.bossLevel <= 10)
+        bossLevel = obj.bossLevel;
+      if (typeof obj.rhythmMaxCombo === 'number' && obj.rhythmMaxCombo >= 0)
+        rhythmMaxCombo = obj.rhythmMaxCombo;
     }
   } catch(e) {}
 }
 
-/* Autosave every 2 minutes */
-setInterval(function() { saveV2State(); }, 120000);
+/* Autosave every 2 minutes — only flushes if state was modified */
+setInterval(function() { flushV2State(); }, 120000);
 
 /* ─── JOURNEY MAP UI ────────────────────────────────────────
    Small panel in the top-left showing level, XP bar, and the
