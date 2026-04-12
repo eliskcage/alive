@@ -135,15 +135,77 @@ ALIVE uses a lightweight capability-gating system so the core experience stays f
 ```
 CAP = { craft: false, geneLab: false }   ← live flags
 gate('craft', 'shape upgrades')          ← call before any premium action
-refreshEntitlements()                    ← fetches flags from your server
+refreshEntitlements()                    ← fetches flags from your server (with cache)
 ```
 
 | Key | Feature group | What it unlocks |
 |-----|--------------|-----------------|
-| `craft` | **Craft Kit** | Shape upgrades, harmony layers, voice training, rhythm timeline + combo |
+| `craft` | **Craft Kit** | Shape upgrades (lv 1–5), harmony layers, voice training, rhythm timeline + combo, boss mode, journey map, XP/progression |
 | `geneLab` | **Gene Lab** | Breeding, offspring, genome mixing |
 
 The gate function shows a friendly, non-aggressive message in the UI if the capability is locked; the core experience (shapes, mic hum-to-note, trust bar, memory, emotion labels) is never gated.
+
+### V2 features
+
+#### 1. Voice Training (Craft Kit)
+Train a specific shape to respond to your hum pitch. ALIVE listens for 3 s and locks in the median frequency.
+
+```js
+ALIVE.craft.trainShape(0); // train shape 1 (index 0)
+```
+
+#### 2. Shape Upgrades (Craft Kit)
+Each of the 5 shapes grows from level 1 → 5. Higher levels add richer audio layers:
+
+| Level | Extra layer |
+|-------|------------|
+| 1 | Base sine (free) |
+| 2 | Vibrato |
+| 3 | Harmony fifth |
+| 4 | Octave warmth |
+| 5 | Shimmer (noise texture) |
+
+```js
+ALIVE.craft.upgradeShape(0); // upgrade shape 1
+```
+
+#### 3. Emotional Weighting (free to collect)
+Positive interactions reinforce emotion associations for each shape. Used by boss mode and rhythm challenges. Always collected, never gated.
+
+#### 4. Rhythm Journey (Craft Kit)
+BPM 90 timeline lane at the bottom of the screen. Notes scroll from right to left; tap the green side when a note reaches the target zone. Builds combo + awards XP at streak milestones.
+
+```js
+ALIVE.craft.rhythmTimeline(); // toggle rhythm mode
+```
+
+#### 5. Boss Journey (Craft Kit)
+ALIVE plays a call pattern; tap shapes in the same order to echo it back. Rounds grow longer as you advance. Awards XP each round.
+
+```js
+ALIVE.journey.boss(); // toggle boss mode
+```
+
+#### 6. Journey Map (Craft Kit)
+Small panel in the top-left showing level, XP bar, and shape status dots (grey=locked, gold=unlocked, green=trained). Automatically shown when `CAP.craft` is true.
+
+#### 7. Saving System
+- `emotionWeights` always persists to `localStorage` (free memory).
+- `shapeLevels`, `trainedShapes`, `playerProgress`, `bossLevel`, `rhythmMaxCombo` persist only when Craft is entitled.
+- Key: `alive_v2`. Autosaves every 2 minutes and after every meaningful action.
+
+### Entitlements caching (V2)
+
+Entitlements are cached in `localStorage` under `alive_ent_cache` with a **30-minute TTL**.
+
+- On page load: cached values are applied immediately (so the UI is responsive with no server round-trip).
+- In the background: `refreshEntitlements()` fetches fresh values from the server and overwrites the cache.
+- On server failure / offline: cached values remain active; the core experience keeps running.
+
+Cache object schema:
+```json
+{ "ts": 1713945600000, "data": { "craft": true, "geneLab": false } }
+```
 
 ### Implementing the server endpoint
 
@@ -184,15 +246,27 @@ app.get('/api/alive/entitlements', (req, res) => {
 ### Developer console commands
 
 ```js
-ALIVE.cap.status()          // → { craft: false, geneLab: false }
-ALIVE.cap.refresh()         // re-fetches from /api/alive/entitlements
-ALIVE.cap.unlock('craft')   // dev override — unlocks locally
+ALIVE.cap.status()              // → { craft: false, geneLab: false }
+ALIVE.cap.refresh()             // re-fetches from /api/alive/entitlements
+ALIVE.cap.unlock('craft')       // dev override — unlocks locally
 
-ALIVE.craft.shapeUpgrade()
-ALIVE.craft.harmonyLayer()
-ALIVE.craft.voiceTraining()
-ALIVE.craft.rhythmTimeline()
+// Craft Kit
+ALIVE.craft.shapeUpgrade()      // upgrade the first non-max shape
+ALIVE.craft.harmonyLayer()      // play a layered chord
+ALIVE.craft.voiceTraining()     // start voice training for first untrained shape
+ALIVE.craft.rhythmTimeline()    // toggle rhythm timeline
+ALIVE.craft.upgradeShape(0)     // upgrade a specific shape (index 0-4)
+ALIVE.craft.trainShape(0)       // train a specific shape with your voice
+ALIVE.craft.bossMode()          // toggle Boss Journey
 
+// Journey
+ALIVE.journey.progress()        // → { level, xp, xpToNext, unlockedShapes, ... }
+ALIVE.journey.shapeLevels()     // → [1, 1, 1, 1, 1]
+ALIVE.journey.trainedShapes()   // → { 0: 440.00, ... }
+ALIVE.journey.rhythm()          // toggle rhythm mode
+ALIVE.journey.boss()            // toggle boss mode
+
+// Gene Lab
 ALIVE.geneLab.breed()
 ```
 

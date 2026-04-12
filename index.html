@@ -418,6 +418,79 @@ html,body{
   transition:opacity 0.3s ease;transform:translate(-50%,-50%);
 }
 .tracking-light.active{opacity:1;}
+
+/* ═══ V2 RHYTHM TIMELINE ═══ */
+#rhythmCanvas{
+  position:absolute;bottom:0;left:0;width:100%;height:100px;
+  z-index:7;pointer-events:none;
+  opacity:0;transition:opacity 0.5s ease;
+  display:block;
+}
+#rhythmCanvas.active{opacity:1;}
+.rhythm-combo{
+  position:absolute;top:16px;right:16px;z-index:8;pointer-events:none;
+  font-family:'Orbitron',monospace;font-size:20px;font-weight:900;
+  color:rgba(245,200,80,0.9);text-shadow:0 0 12px rgba(245,180,50,0.6);
+  opacity:0;transition:opacity 0.3s ease;
+}
+.rhythm-combo.show{opacity:1;}
+
+/* ═══ V2 JOURNEY MAP ═══ */
+.journey-panel{
+  position:absolute;top:16px;left:16px;z-index:8;pointer-events:none;
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;
+  color:rgba(167,139,250,0.8);
+  background:rgba(5,5,16,0.78);padding:8px 10px;border-radius:8px;
+  border:1px solid rgba(167,139,250,0.2);min-width:106px;
+  opacity:0;transition:opacity 0.5s ease;
+}
+.journey-panel.show{opacity:1;}
+.journey-level{font-size:11px;font-weight:700;color:rgba(245,200,80,0.9);margin-bottom:4px;}
+.journey-xp-bar{width:100%;height:4px;background:rgba(167,139,250,0.15);border-radius:2px;overflow:hidden;}
+.journey-xp-fill{height:100%;background:rgba(167,139,250,0.7);border-radius:2px;transition:width 0.5s ease;}
+.journey-shapes{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+.journey-shape{
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.25);
+  transition:background 0.3s ease;
+}
+.journey-shape.unlocked{background:rgba(245,200,80,0.55);border-color:rgba(245,200,80,0.5);}
+.journey-shape.trained{background:rgba(16,185,129,0.7);border-color:rgba(16,185,129,0.6);}
+
+/* ═══ V2 TRAINING INDICATOR ═══ */
+.training-indicator{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:10;pointer-events:none;
+  font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;
+  color:rgba(16,185,129,0.9);text-align:center;
+  background:rgba(5,5,16,0.88);padding:12px 20px;border-radius:10px;
+  border:1px solid rgba(16,185,129,0.3);
+  opacity:0;transition:opacity 0.4s ease;
+}
+.training-indicator.show{opacity:1;}
+
+/* ═══ V2 BOSS OVERLAY ═══ */
+.boss-overlay{
+  position:absolute;inset:0;z-index:6;pointer-events:none;
+  border:2px solid rgba(239,68,68,0);
+  transition:border-color 0.5s ease,box-shadow 0.5s ease;
+}
+.boss-overlay.active{
+  border-color:rgba(239,68,68,0.4);
+  box-shadow:inset 0 0 40px rgba(239,68,68,0.08);
+}
+
+/* ═══ V2 XP POP ═══ */
+.xp-pop{
+  position:absolute;z-index:9;pointer-events:none;
+  font-family:'Orbitron',monospace;font-size:10px;font-weight:700;
+  color:rgba(245,200,80,0.9);text-shadow:0 0 8px rgba(245,180,50,0.5);
+  animation:xpFloat 1.2s ease-out forwards;
+}
+@keyframes xpFloat{
+  0%{opacity:1;transform:translateY(0);}
+  100%{opacity:0;transform:translateY(-40px);}
+}
 </style>
 </head>
 <body>
@@ -509,6 +582,20 @@ html,body{
     <div class="pair-status" id="pairStatus"></div>
     <div class="pair-btn" onclick="hidePairing()" style="margin-top:12px;">CLOSE</div>
   </div>
+  <!-- V2: Rhythm timeline canvas -->
+  <canvas id="rhythmCanvas"></canvas>
+  <!-- V2: Rhythm combo counter -->
+  <div id="rhythmCombo" class="rhythm-combo"></div>
+  <!-- V2: Journey / progression map -->
+  <div id="journeyPanel" class="journey-panel">
+    <div class="journey-level" id="journeyLevel">LEVEL 1</div>
+    <div class="journey-xp-bar"><div class="journey-xp-fill" id="journeyXPFill" style="width:0%"></div></div>
+    <div class="journey-shapes" id="journeyShapes"></div>
+  </div>
+  <!-- V2: Voice training indicator -->
+  <div id="trainingIndicator" class="training-indicator">🎤 LISTENING…</div>
+  <!-- V2: Boss mode border overlay -->
+  <div id="bossOverlay" class="boss-overlay"></div>
   <div class="cap-log" id="capLog"></div>
   <div class="sleep-overlay" id="sleepOverlay" onclick="wakeUp()"></div>
 </div>
@@ -4629,73 +4716,697 @@ function gate(featureKey, why) {
   return false;
 }
 
-/* ─── refreshEntitlements() ──────────────────────────────────
-   Fetches entitlements from the backend. Fails silently so the
-   core experience always works even without a server.
+/* ─── refreshEntitlements() with 30-min cache ───────────────
+   On load: apply any cached entitlements immediately (so the
+   UI is responsive), then refresh from the server.
+   On failure or offline: cached values keep working.
    Expected JSON: { craft: boolean, geneLab: boolean }
    ─────────────────────────────────────────────────────────── */
 var ENTITLEMENTS_URL = '/api/alive/entitlements';
+var ENT_CACHE_KEY    = 'alive_ent_cache';
+var ENT_CACHE_TTL    = 30 * 60 * 1000; /* 30 minutes */
+
+function applyEntitlements(data) {
+  if (!data) return;
+  if (typeof data.craft   === 'boolean') CAP.craft   = data.craft;
+  if (typeof data.geneLab === 'boolean') CAP.geneLab = data.geneLab;
+  updateJourneyVisibility();
+}
+
+function loadCachedEntitlements() {
+  try {
+    var raw = localStorage.getItem(ENT_CACHE_KEY);
+    if (!raw) return false;
+    var obj = JSON.parse(raw);
+    if (Date.now() - obj.ts > ENT_CACHE_TTL) return false;
+    applyEntitlements(obj.data);
+    return true;
+  } catch(e) { return false; }
+}
 
 function refreshEntitlements() {
+  /* Apply cached entitlements immediately so UI is ready */
+  loadCachedEntitlements();
   fetch(ENTITLEMENTS_URL, { credentials: 'include' })
     .then(function(r) { return r.ok ? r.json() : null; })
     .then(function(data) {
       if (!data) return;
-      if (typeof data.craft   === 'boolean') CAP.craft   = data.craft;
-      if (typeof data.geneLab === 'boolean') CAP.geneLab = data.geneLab;
+      applyEntitlements(data);
+      try {
+        localStorage.setItem(ENT_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: data }));
+      } catch(e) {}
     })
-    .catch(function() { /* Offline or no server — core still works fine */ });
+    .catch(function() {
+      /* Offline or no server — cached entitlements already applied, core still works */
+    });
 }
 
-/* ─── CRAFT KIT STUBS ────────────────────────────────────────
-   Shape upgrades / harmony layers / voice training /
-   rhythm timeline + combo. All gated under CAP.craft.
-   These are stubs ready for full implementation.
-   ─────────────────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════
+   ALIVE V2 — GROWTH SKILLS
+   ────────────────────────────────────────────────────────────
+   All premium features (Craft Kit) are gated under CAP.craft.
+   The core experience — shapes, mic hum, trust bar, emotion
+   labels, memory — is always free and never interrupted.
+
+   Kid-friendly tone throughout: no "failure", no "punishment",
+   no auto-popups. Locked features show a gentle message.
+   ════════════════════════════════════════════════════════════ */
+
+/* ─── PENTATONIC SCALE (free pitch mapping) ─────────────────
+   C4  D4  E4  G4  A4  C5  D5  E5  G5  A5                    */
+var PENTA = [261.63, 293.66, 329.63, 392.00, 440.00,
+             523.25, 587.33, 659.25, 783.99, 880.00];
+
+function freqToNearestPenta(hz) {
+  var best = PENTA[0], bestDist = Math.abs(hz - PENTA[0]);
+  for (var i = 1; i < PENTA.length; i++) {
+    var d = Math.abs(hz - PENTA[i]);
+    if (d < bestDist) { bestDist = d; best = PENTA[i]; }
+  }
+  return best;
+}
+
+/* ─── SHAPE LEVELS (Craft-gated) ────────────────────────────
+   Each of the 5 representative shapes can grow from level 1
+   to 5. Higher levels unlock richer sound layers in playNote.  */
+var shapeLevels = [1, 1, 1, 1, 1];
+
+function upgradeShape(i) {
+  if (!gate('craft', 'shape upgrades')) return;
+  if (i < 0 || i > 4) return;
+  if (shapeLevels[i] >= 5) {
+    showCapLog('\u2728 Shape ' + (i + 1) + ' is already at max Growth!');
+    return;
+  }
+  shapeLevels[i]++;
+  soundUnlock();
+  evolveTrait('curiosity', 3);
+  addMilestone('Shape ' + (i + 1) + ' grew to level ' + shapeLevels[i]);
+  saveV2State();
+  refreshJourneyUI();
+  if (nodes[i]) {
+    nodes[i].el.style.transform = 'scale(2.2)';
+    setTimeout(function() { nodes[i].el.style.transform = ''; }, 600);
+  }
+  showCapLog('\uD83C\uDF1F Shape ' + (i + 1) + ' grew to level ' + shapeLevels[i] + '!');
+}
+
+/* ─── VOICE TRAINING (Craft-gated) ──────────────────────────
+   Player hums for 3 s while training mode is active; the
+   median mic pitch is stored as that shape's trained note.    */
+var trainedShapes   = {};
+var trainingMode    = false;
+var trainingTarget  = -1;
+var trainingSamples = [];
+var trainingIndEl   = null;
+var trainingTimer   = null;
+
+function startTraining(shapeIndex) {
+  if (!gate('craft', 'voice training')) return;
+  if (shapeIndex < 0 || shapeIndex > 4) return;
+  if (!listening) {
+    showCapLog('\uD83C\uDFA4 Turn on the mic first to train your voice!');
+    return;
+  }
+  clearTimeout(trainingTimer);
+  trainingMode    = true;
+  trainingTarget  = shapeIndex;
+  trainingSamples = [];
+  trainingIndEl   = trainingIndEl || document.getElementById('trainingIndicator');
+  if (trainingIndEl) {
+    trainingIndEl.textContent = '\uD83C\uDFA4 Hum for shape ' + (shapeIndex + 1) + '\u2026';
+    trainingIndEl.classList.add('show');
+  }
+  addMilestone('Voice training started for shape ' + (shapeIndex + 1));
+  trainingTimer = setTimeout(function() { completeTraining(); }, 3000);
+}
+
+function completeTraining() {
+  if (!trainingMode || trainingTarget < 0) return;
+  trainingMode = false;
+  clearTimeout(trainingTimer);
+  if (trainingIndEl) trainingIndEl.classList.remove('show');
+  if (trainingSamples.length === 0) {
+    showCapLog('\uD83C\uDFA4 No pitch heard \u2014 try humming a little louder!');
+    trainingTarget = -1;
+    return;
+  }
+  trainingSamples.sort(function(a, b) { return a - b; });
+  var median = trainingSamples[Math.floor(trainingSamples.length / 2)];
+  trainedShapes[trainingTarget] = median;
+  soundUnlock();
+  evolveTrait('musicality', 4);
+  addMilestone('Shape ' + (trainingTarget + 1) + ' trained to ' + Math.round(median) + ' Hz');
+  saveV2State();
+  refreshJourneyUI();
+  showCapLog('\uD83C\uDFB5 Shape ' + (trainingTarget + 1) + ' learned your voice!');
+  trainingTarget  = -1;
+  trainingSamples = [];
+}
+
+/* Map a raw microphone Hz to a playback pitch:
+   - During training: collect sample, return null (no sound).
+   - Craft + trained shape: return the learned Hz.
+   - Otherwise: snap to nearest pentatonic note.               */
+function mapPitchToNote(rawHz, shapeHint) {
+  if (trainingMode && trainingTarget >= 0) {
+    if (rawHz > 50 && rawHz < 2000) trainingSamples.push(rawHz);
+    return null;
+  }
+  if (CAP.craft && shapeHint >= 0 && trainedShapes[shapeHint] !== undefined) {
+    return trainedShapes[shapeHint];
+  }
+  return freqToNearestPenta(rawHz);
+}
+
+/* ─── ENHANCED playNote() ───────────────────────────────────
+   The base sine oscillator is always free.
+   Craft + shape level adds richer layers:
+     Lv 2  vibrato   Lv 3  harmony fifth
+     Lv 4  octave    Lv 5  shimmer (noise texture)            */
+function playNote(freq, duration, shapeIdx) {
+  if (!freq || freq <= 0) return;
+  var a   = getAudio();
+  var dur = duration || 0.25;
+  var lv  = (CAP.craft && shapeIdx >= 0 && shapeIdx < 5)
+              ? (shapeLevels[shapeIdx] || 1) : 1;
+
+  /* ── Base oscillator (always free) ── */
+  var o = a.createOscillator(), g = a.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(freq, a.currentTime);
+  g.gain.setValueAtTime(0, a.currentTime);
+  g.gain.linearRampToValueAtTime(0.07, a.currentTime + 0.015);
+  g.gain.setValueAtTime(0.07, a.currentTime + dur * 0.75);
+  g.gain.linearRampToValueAtTime(0, a.currentTime + dur);
+  o.connect(g); g.connect(a.destination);
+  o.start(a.currentTime); o.stop(a.currentTime + dur);
+
+  if (!CAP.craft) return;
+
+  /* ── Level 2+: gentle vibrato ── */
+  if (lv >= 2) {
+    var lfo = a.createOscillator(), lfoG = a.createGain();
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(5 + lv, a.currentTime);
+    lfoG.gain.setValueAtTime(freq * 0.012, a.currentTime);
+    lfo.connect(lfoG); lfoG.connect(o.frequency);
+    lfo.start(a.currentTime); lfo.stop(a.currentTime + dur);
+  }
+
+  /* ── Level 3+: harmony fifth ── */
+  if (lv >= 3) {
+    var h = a.createOscillator(), hg = a.createGain();
+    h.type = 'sine';
+    h.frequency.setValueAtTime(freq * 1.5, a.currentTime);
+    hg.gain.setValueAtTime(0, a.currentTime);
+    hg.gain.linearRampToValueAtTime(0.035, a.currentTime + 0.02);
+    hg.gain.linearRampToValueAtTime(0, a.currentTime + dur);
+    h.connect(hg); hg.connect(a.destination);
+    h.start(a.currentTime); h.stop(a.currentTime + dur);
+  }
+
+  /* ── Level 4+: octave below (warmth) ── */
+  if (lv >= 4) {
+    var oc = a.createOscillator(), og = a.createGain();
+    oc.type = 'triangle';
+    oc.frequency.setValueAtTime(freq * 0.5, a.currentTime);
+    og.gain.setValueAtTime(0, a.currentTime);
+    og.gain.linearRampToValueAtTime(0.025, a.currentTime + 0.02);
+    og.gain.linearRampToValueAtTime(0, a.currentTime + dur);
+    oc.connect(og); og.connect(a.destination);
+    oc.start(a.currentTime); oc.stop(a.currentTime + dur);
+  }
+
+  /* ── Level 5: shimmer (gentle noise texture) ── */
+  if (lv >= 5) {
+    var bufLen = Math.round(a.sampleRate * dur);
+    var buf = a.createBuffer(1, bufLen, a.sampleRate);
+    var bd  = buf.getChannelData(0);
+    for (var ii = 0; ii < bufLen; ii++) bd[ii] = (Math.random() * 2 - 1) * 0.006;
+    var ns = a.createBufferSource(), ng = a.createGain();
+    ns.buffer = buf;
+    ng.gain.setValueAtTime(0.5, a.currentTime);
+    ng.gain.linearRampToValueAtTime(0, a.currentTime + dur);
+    ns.connect(ng); ng.connect(a.destination);
+    ns.start(a.currentTime);
+  }
+}
+
+/* ─── EMOTIONAL WEIGHTING (free to collect) ────────────────
+   emotionWeights[shapeIdx][emotion] tallies positive signals.
+   Used by boss mode and rhythm engine to reinforce behaviours.  */
+var EMOTIONS = ['happy', 'excited', 'calm', 'curious', 'loving'];
+var emotionWeights = {};
+
+function reinforceEmotion(shapeIndex, emotion) {
+  if (!emotionWeights[shapeIndex]) emotionWeights[shapeIndex] = {};
+  emotionWeights[shapeIndex][emotion] =
+    (emotionWeights[shapeIndex][emotion] || 0) + 1;
+  if (CAP.craft &&
+      playerProgress.discoveredEmotions.indexOf(emotion) === -1) {
+    playerProgress.discoveredEmotions.push(emotion);
+    saveV2State();
+  }
+}
+
+function getDominantEmotion(shapeIndex) {
+  var weights = emotionWeights[shapeIndex];
+  if (!weights) return null;
+  var best = null, bestVal = 0;
+  EMOTIONS.forEach(function(e) {
+    if ((weights[e] || 0) > bestVal) { bestVal = weights[e]; best = e; }
+  });
+  return best;
+}
+
+/* ─── RHYTHM ENGINE (Craft-gated, BPM 90) ──────────────────
+   Timeline lane at the bottom of the screen.
+   Notes scroll right → left; tap (green side) in the target
+   zone to hit them. Combo builds with consecutive hits.       */
+var BPM             = 90;
+var BEAT_MS         = Math.round((60 / BPM) * 1000); /* 667 ms */
+var rhythmActive    = false;
+var rhythmCanvas    = null;
+var rhythmCtx       = null;
+var rhythmNotes     = [];
+var rhythmCombo     = 0;
+var rhythmMaxCombo  = 0;
+var rhythmLastBeat  = 0;
+var rhythmBeatNum   = 0;
+var rhythmComboEl   = null;
+var RHYTHM_TARGET_X = 80;  /* px from left edge — the hit zone */
+var RHYTHM_SPEED    = 2.5; /* px per animation frame */
+var RHYTHM_TOL      = 38;  /* ± px window for a valid hit */
+
+function startRhythmMode() {
+  if (!gate('craft', 'rhythm timeline & combo')) return;
+  if (rhythmActive) { stopRhythmMode(); return; }
+  rhythmActive   = true;
+  rhythmCombo    = 0;
+  rhythmMaxCombo = 0;
+  rhythmBeatNum  = 0;
+  rhythmNotes    = [];
+  rhythmLastBeat = Date.now();
+  rhythmCanvas   = rhythmCanvas || document.getElementById('rhythmCanvas');
+  rhythmComboEl  = rhythmComboEl || document.getElementById('rhythmCombo');
+  if (rhythmCanvas) {
+    rhythmCanvas.width  = W;
+    rhythmCanvas.height = 100;
+    rhythmCtx = rhythmCanvas.getContext('2d');
+    rhythmCanvas.classList.add('active');
+  }
+  if (rhythmComboEl) rhythmComboEl.classList.add('show');
+  addMilestone('Rhythm Journey started');
+  soundHappyTrill();
+  evolveTrait('playfulness', 2);
+  rhythmTick();
+}
+
+function stopRhythmMode() {
+  rhythmActive = false;
+  if (rhythmCanvas) rhythmCanvas.classList.remove('active');
+  if (rhythmComboEl) { rhythmComboEl.textContent = ''; rhythmComboEl.classList.remove('show'); }
+  if (rhythmCtx) rhythmCtx.clearRect(0, 0, W, 100);
+  if (rhythmMaxCombo >= 8) {
+    gainXP(20, 'Rhythm streak \u00d7' + rhythmMaxCombo + '!');
+    evolveTrait('musicality', 3);
+  }
+  saveV2State();
+  showCapLog('\uD83C\uDFB5 Rhythm Journey ended \u2014 best combo: ' + rhythmMaxCombo);
+}
+
+function rhythmTick() {
+  if (!rhythmActive) return;
+  var now = Date.now();
+
+  /* Spawn a note on every beat */
+  if (now - rhythmLastBeat >= BEAT_MS) {
+    rhythmLastBeat = now;
+    rhythmBeatNum++;
+    var scaleIdx = rhythmBeatNum % PENTA.length;
+    rhythmNotes.push({
+      x:        W,
+      freq:     PENTA[scaleIdx],
+      shapeIdx: rhythmBeatNum % 5,
+      hit:      false,
+      missed:   false
+    });
+    /* Quiet metronome tick */
+    bleep(PENTA[scaleIdx], 0.12, 0.04, 'sine', 0);
+  }
+
+  /* Move all notes left */
+  for (var i = 0; i < rhythmNotes.length; i++) {
+    rhythmNotes[i].x -= RHYTHM_SPEED;
+    if (!rhythmNotes[i].hit && !rhythmNotes[i].missed &&
+        rhythmNotes[i].x < RHYTHM_TARGET_X - RHYTHM_TOL) {
+      rhythmNotes[i].missed = true;
+      rhythmCombo = 0;
+      if (rhythmComboEl) rhythmComboEl.textContent = '';
+    }
+  }
+  rhythmNotes = rhythmNotes.filter(function(n) { return n.x > -20; });
+
+  /* Draw timeline */
+  if (rhythmCtx) {
+    rhythmCtx.clearRect(0, 0, W, 100);
+    rhythmCtx.fillStyle = 'rgba(5,5,16,0.75)';
+    rhythmCtx.fillRect(0, 0, W, 100);
+    /* Target zone dashed line */
+    rhythmCtx.strokeStyle = 'rgba(167,139,250,0.5)';
+    rhythmCtx.lineWidth   = 2;
+    rhythmCtx.setLineDash([4, 4]);
+    rhythmCtx.beginPath();
+    rhythmCtx.moveTo(RHYTHM_TARGET_X, 0);
+    rhythmCtx.lineTo(RHYTHM_TARGET_X, 100);
+    rhythmCtx.stroke();
+    rhythmCtx.setLineDash([]);
+    /* Notes */
+    for (var j = 0; j < rhythmNotes.length; j++) {
+      var n = rhythmNotes[j];
+      var y = 50 + (n.shapeIdx - 2) * 12;
+      rhythmCtx.beginPath();
+      rhythmCtx.arc(n.x, y, 8, 0, Math.PI * 2);
+      rhythmCtx.fillStyle = n.hit    ? 'rgba(16,185,129,0.8)'
+                          : n.missed ? 'rgba(100,100,100,0.35)'
+                                     : 'rgba(245,200,80,0.85)';
+      rhythmCtx.fill();
+      if (!n.hit && !n.missed) {
+        rhythmCtx.strokeStyle = 'rgba(255,255,255,0.2)';
+        rhythmCtx.lineWidth   = 1.5;
+        rhythmCtx.stroke();
+      }
+    }
+    /* Combo glow ring at target zone */
+    if (rhythmCombo >= 4) {
+      rhythmCtx.beginPath();
+      rhythmCtx.arc(RHYTHM_TARGET_X, 50, 14 + Math.min(rhythmCombo, 20),
+                    0, Math.PI * 2);
+      rhythmCtx.fillStyle = 'rgba(245,200,80,' +
+                             Math.min(0.35, rhythmCombo * 0.04) + ')';
+      rhythmCtx.fill();
+    }
+  }
+
+  requestAnimationFrame(rhythmTick);
+}
+
+function evaluateRhythmTap() {
+  /* Find nearest unhit note inside the target window */
+  var best = null, bestDist = Infinity;
+  for (var i = 0; i < rhythmNotes.length; i++) {
+    var n = rhythmNotes[i];
+    if (!n.hit && !n.missed) {
+      var d = Math.abs(n.x - RHYTHM_TARGET_X);
+      if (d < RHYTHM_TOL && d < bestDist) { bestDist = d; best = n; }
+    }
+  }
+  if (best) {
+    best.hit = true;
+    rhythmCombo++;
+    if (rhythmCombo > rhythmMaxCombo) rhythmMaxCombo = rhythmCombo;
+    playNote(best.freq, 0.18, best.shapeIdx);
+    reinforceEmotion(best.shapeIdx, 'happy');
+    if (rhythmComboEl) {
+      rhythmComboEl.textContent = rhythmCombo >= 4
+        ? '\uD83D\uDD25 \u00d7' + rhythmCombo : '\u00d7' + rhythmCombo;
+    }
+    if (rhythmCombo % 8 === 0) gainXP(5, 'Combo \u00d7' + rhythmCombo);
+    return true;
+  }
+  return false;
+}
+
+/* ─── BOSS JOURNEY (Craft-gated) ────────────────────────────
+   ALIVE plays a call pattern; the player echoes it back by
+   tapping the matching shapes. Rounds get longer as you grow. */
+var bossActive      = false;
+var bossLevel       = 1;
+var bossPattern     = [];
+var bossPhase       = 'idle'; /* 'call' | 'response' | 'idle' */
+var bossRound       = 0;
+var bossRespIdx     = 0;
+var bossTimer       = null;
+var bossOverlayEl   = null;
+
+function startBossMode() {
+  if (!gate('craft', 'Boss Journey')) return;
+  if (bossActive) { endBossMode(); return; }
+  bossActive    = true;
+  bossRound     = 0;
+  bossOverlayEl = bossOverlayEl || document.getElementById('bossOverlay');
+  if (bossOverlayEl) bossOverlayEl.classList.add('active');
+  addMilestone('Boss Journey started at level ' + bossLevel);
+  soundUnlock();
+  nextBossRound();
+}
+
+function endBossMode() {
+  bossActive = false;
+  bossPhase  = 'idle';
+  clearTimeout(bossTimer);
+  if (bossOverlayEl) bossOverlayEl.classList.remove('active');
+  gainXP(bossRound * 10, 'Boss Journey Round ' + bossRound);
+  saveV2State();
+  showCapLog('\uD83C\uDFC6 Boss Journey ended \u2014 you reached Round ' + bossRound + '!');
+}
+
+function nextBossRound() {
+  if (!bossActive) return;
+  bossRound++;
+  var len = Math.min(bossLevel + 1, 6);
+  bossPattern = [];
+  for (var i = 0; i < len; i++) {
+    var idx = Math.floor(Math.random() * PENTA.length);
+    bossPattern.push({ freq: PENTA[idx], shapeIdx: idx % 5 });
+  }
+  bossPhase = 'call';
+  showCapLog('\uD83D\uDC7E Watch the pattern \u2014 then copy it!');
+  /* Play the boss call pattern */
+  var t = 0;
+  bossPattern.forEach(function(note, ni) {
+    var capturedNote = note;
+    var capturedNi   = ni;
+    setTimeout(function() {
+      playNote(capturedNote.freq, 0.22, capturedNote.shapeIdx);
+      var nd = nodes[capturedNote.shapeIdx];
+      if (nd) {
+        nd.el.style.transform = 'scale(2)';
+        setTimeout(function() { nd.el.style.transform = ''; }, 300);
+      }
+    }, t);
+    t += BEAT_MS;
+  });
+  /* After call ends, wait for player response */
+  bossTimer = setTimeout(function() {
+    bossPhase   = 'response';
+    bossRespIdx = 0;
+    showCapLog('\uD83C\uDFB5 Your turn \u2014 tap the same pattern!');
+  }, t + 500);
+}
+
+function checkBossResponse(shapeIdx) {
+  if (!bossActive || bossPhase !== 'response') return;
+  var expected = bossPattern[bossRespIdx];
+  if (!expected) return;
+  if (expected.shapeIdx === shapeIdx) {
+    playNote(expected.freq, 0.18, shapeIdx);
+    reinforceEmotion(shapeIdx, 'excited');
+    bossRespIdx++;
+    if (bossRespIdx >= bossPattern.length) {
+      gainXP(15 + bossLevel * 5, 'Boss Round ' + bossRound + ' complete!');
+      bossLevel = Math.min(bossLevel + 1, 10);
+      bossPhase = 'idle';
+      showCapLog('\uD83C\uDF1F Perfect! Next round\u2026');
+      bossTimer = setTimeout(nextBossRound, 1500);
+    }
+  } else {
+    soundWarning();
+    showCapLog('\uD83D\uDC9B Almost! Try again next round.');
+    bossPhase = 'idle';
+    bossTimer = setTimeout(nextBossRound, 2000);
+  }
+}
+
+/* ─── PLAYER PROGRESS + XP + SAVING ────────────────────────
+   Core emotion memory always saves.
+   Progression (level, XP, unlocks) is Craft-gated.           */
+var playerProgress = {
+  level:              1,
+  xp:                 0,
+  xpToNext:           100,
+  unlockedShapes:     [0],
+  discoveredEmotions: []
+};
+
+var XP_PER_LEVEL = [100, 150, 200, 275, 350, 450, 550, 650, 800, 1000];
+
+function gainXP(amount, reason) {
+  if (!CAP.craft) return;
+  playerProgress.xp += amount;
+  /* Float +XP text above the creature */
+  var pop = document.createElement('div');
+  pop.className  = 'xp-pop';
+  pop.textContent = '+' + amount + ' \u2728';
+  pop.style.left  = (W / 2 + (Math.random() - 0.5) * 60) + 'px';
+  pop.style.top   = (H / 2 - 60 + (Math.random() - 0.5) * 30) + 'px';
+  var as = document.getElementById('aliveScreen');
+  if (as) { as.appendChild(pop); setTimeout(function() { pop.remove(); }, 1200); }
+  /* Level-up check */
+  var threshold = XP_PER_LEVEL[Math.min(playerProgress.level - 1,
+                                        XP_PER_LEVEL.length - 1)];
+  if (playerProgress.xp >= threshold) {
+    playerProgress.xp     -= threshold;
+    playerProgress.level++;
+    playerProgress.xpToNext = XP_PER_LEVEL[Math.min(playerProgress.level - 1,
+                                                     XP_PER_LEVEL.length - 1)];
+    var nextShape = playerProgress.unlockedShapes.length;
+    if (nextShape < 5 &&
+        playerProgress.unlockedShapes.indexOf(nextShape) === -1) {
+      playerProgress.unlockedShapes.push(nextShape);
+      showCapLog('\uD83D\uDD13 Shape ' + (nextShape + 1) + ' unlocked!');
+    }
+    soundUnlock();
+    evolveTrait('curiosity', 5);
+    addMilestone('Reached Journey Level ' + playerProgress.level);
+  }
+  refreshJourneyUI();
+  saveV2State();
+}
+
+/* ─── SAVING / LOADING ──────────────────────────────────────
+   emotionWeights always persists (free memory).
+   shapeLevels, trainedShapes, playerProgress only saved when
+   Craft is entitled (they are meaningless otherwise).         */
+var V2_SAVE_KEY = 'alive_v2';
+
+function saveV2State() {
+  try {
+    var obj = { emotionWeights: emotionWeights, ts: Date.now() };
+    if (CAP.craft) {
+      obj.shapeLevels    = shapeLevels;
+      obj.trainedShapes  = trainedShapes;
+      obj.playerProgress = playerProgress;
+      obj.bossLevel      = bossLevel;
+      obj.rhythmMaxCombo = rhythmMaxCombo;
+    }
+    localStorage.setItem(V2_SAVE_KEY, JSON.stringify(obj));
+  } catch(e) {}
+}
+
+function loadV2State() {
+  try {
+    var raw = localStorage.getItem(V2_SAVE_KEY);
+    if (!raw) return;
+    var obj = JSON.parse(raw);
+    if (obj.emotionWeights) emotionWeights = obj.emotionWeights;
+    if (CAP.craft) {
+      if (Array.isArray(obj.shapeLevels))    shapeLevels    = obj.shapeLevels;
+      if (obj.trainedShapes)                 trainedShapes  = obj.trainedShapes;
+      if (obj.playerProgress)
+        playerProgress = Object.assign(playerProgress, obj.playerProgress);
+      if (typeof obj.bossLevel      === 'number') bossLevel      = obj.bossLevel;
+      if (typeof obj.rhythmMaxCombo === 'number') rhythmMaxCombo = obj.rhythmMaxCombo;
+    }
+  } catch(e) {}
+}
+
+/* Autosave every 2 minutes */
+setInterval(function() { saveV2State(); }, 120000);
+
+/* ─── JOURNEY MAP UI ────────────────────────────────────────
+   Small panel in the top-left showing level, XP bar, and the
+   5 shape dots (grey=locked, gold=unlocked, green=trained).   */
+var journeyPanelEl  = null;
+var journeyLevelEl  = null;
+var journeyXPFillEl = null;
+var journeyShapesEl = null;
+
+function updateJourneyVisibility() {
+  journeyPanelEl = journeyPanelEl || document.getElementById('journeyPanel');
+  if (!journeyPanelEl) return;
+  if (CAP.craft) {
+    journeyPanelEl.classList.add('show');
+    refreshJourneyUI();
+  } else {
+    journeyPanelEl.classList.remove('show');
+  }
+}
+
+function refreshJourneyUI() {
+  if (!CAP.craft) return;
+  journeyLevelEl  = journeyLevelEl  || document.getElementById('journeyLevel');
+  journeyXPFillEl = journeyXPFillEl || document.getElementById('journeyXPFill');
+  journeyShapesEl = journeyShapesEl || document.getElementById('journeyShapes');
+  if (journeyLevelEl) journeyLevelEl.textContent = 'LEVEL ' + playerProgress.level;
+  if (journeyXPFillEl) {
+    var pct = Math.min(100, Math.round(
+                (playerProgress.xp / playerProgress.xpToNext) * 100));
+    journeyXPFillEl.style.width = pct + '%';
+  }
+  if (journeyShapesEl) {
+    journeyShapesEl.innerHTML = '';
+    for (var i = 0; i < 5; i++) {
+      var dot      = document.createElement('div');
+      dot.className = 'journey-shape';
+      var isUnlocked = playerProgress.unlockedShapes.indexOf(i) !== -1;
+      var isTrained  = trainedShapes[i] !== undefined;
+      if (isTrained)        dot.classList.add('trained');
+      else if (isUnlocked)  dot.classList.add('unlocked');
+      dot.title = 'Shape ' + (i + 1) +
+        (isTrained ? ' (trained)' : isUnlocked ? ' (unlocked)' : ' (locked)');
+      journeyShapesEl.appendChild(dot);
+    }
+  }
+}
+
+/* ─── HOOK: rhythm tap integrates with green touches ────────
+   When rhythm mode is active, green-side taps also evaluate
+   rhythm timing. Boss response uses x-position to pick shape. */
+var _origReactGreenV2 = reactGreen;
+reactGreen = function(x, y) {
+  _origReactGreenV2(x, y);
+  if (rhythmActive) evaluateRhythmTap();
+  if (bossActive && bossPhase === 'response') {
+    var si = Math.min(4, Math.max(0, Math.floor(x / (W / 5))));
+    checkBossResponse(si);
+  }
+};
+
+/* ─── CRAFT KIT FUNCTIONS ───────────────────────────────────*/
 function craftShapeUpgrade() {
   if (!gate('craft', 'shape upgrades')) return;
-  /* TODO: morph creature nodes into unique evolved shapes */
-  soundHappyTrill();
-  evolveTrait('curiosity', 2);
-  addMilestone('Shape upgraded');
-  saveGenome();
+  for (var i = 0; i < 5; i++) {
+    if (shapeLevels[i] < 5) { upgradeShape(i); return; }
+  }
+  showCapLog('\u2728 All shapes are at max Growth!');
 }
 
 function craftHarmonyLayer() {
   if (!gate('craft', 'harmony layers')) return;
-  /* TODO: add a second oscillator layer enriching all sounds */
-  soundHappyTrill();
+  [PENTA[0], PENTA[2], PENTA[4]].forEach(function(f, i) {
+    setTimeout(function() { playNote(f, 0.4, i); }, i * 80);
+  });
   evolveTrait('musicality', 2);
-  addMilestone('Harmony layer added');
-  saveGenome();
+  addMilestone('Harmony layer played');
 }
 
 function craftVoiceTraining() {
   if (!gate('craft', 'voice training')) return;
-  /* TODO: open a guided voice-pattern training session */
-  soundHappyTrill();
-  evolveTrait('musicality', 3);
-  addMilestone('Voice training started');
-  saveGenome();
+  for (var i = 0; i < 5; i++) {
+    if (trainedShapes[i] === undefined) { startTraining(i); return; }
+  }
+  showCapLog('\uD83C\uDFA4 All shapes trained! Use ALIVE.craft.trainShape(i) to retrain.');
 }
 
 function craftRhythmTimeline() {
-  if (!gate('craft', 'rhythm timeline & combo')) return;
-  /* TODO: open the beat-lane rhythm game with combo scoring (BPM 90) */
-  soundHappyTrill();
-  evolveTrait('playfulness', 2);
-  addMilestone('Rhythm timeline opened');
-  saveGenome();
+  startRhythmMode();
 }
 
-/* ─── GENE LAB STUBS ─────────────────────────────────────────
-   Breeding / offspring feature. Gated under CAP.geneLab.
-   ─────────────────────────────────────────────────────────── */
+/* ─── GENE LAB ───────────────────────────────────────────── */
 function geneLabBreed() {
   if (!gate('geneLab', 'breeding & offspring')) return;
-  /* TODO: combine this creature's genome with partner's to
-     produce a new generation (bump genome.generation, blend
-     trait values, inherit top learned sounds from both). */
   soundHappyTrill();
   setTimeout(function() {
     bleep(400, 0.1, 0.05, 'sine', 0);
@@ -4707,24 +5418,41 @@ function geneLabBreed() {
   saveGenome();
 }
 
-/* Expose premium features + capability controls to debug console */
+/* ─── EXPOSE V2 TO DEBUG CONSOLE ────────────────────────────*/
 window.ALIVE.craft = {
   shapeUpgrade:   craftShapeUpgrade,
   harmonyLayer:   craftHarmonyLayer,
   voiceTraining:  craftVoiceTraining,
-  rhythmTimeline: craftRhythmTimeline
+  rhythmTimeline: craftRhythmTimeline,
+  /* V2 additions */
+  upgradeShape: upgradeShape,   /* upgradeShape(0-4) */
+  trainShape:   startTraining,  /* trainShape(0-4) */
+  bossMode:     startBossMode,
+  gainXP:       gainXP
 };
 window.ALIVE.geneLab = { breed: geneLabBreed };
 window.ALIVE.cap = {
-  /* Read current capability flags */
   status:  function() { return Object.assign({}, CAP); },
-  /* Manually refresh from server */
   refresh: refreshEntitlements,
-  /* Developer override: ALIVE.cap.unlock('craft') */
-  unlock:  function(k) { if (Object.prototype.hasOwnProperty.call(CAP, k)) { CAP[k] = true; } }
+  unlock:  function(k) {
+    if (Object.prototype.hasOwnProperty.call(CAP, k)) {
+      CAP[k] = true;
+      updateJourneyVisibility();
+    }
+  }
+};
+window.ALIVE.journey = {
+  progress:      function() { return Object.assign({}, playerProgress); },
+  shapeLevels:   function() { return shapeLevels.slice(); },
+  trainedShapes: function() { return Object.assign({}, trainedShapes); },
+  boss:          startBossMode,
+  rhythm:        startRhythmMode
 };
 
-/* Fetch entitlements once on load — silent if no server */
+/* ─── INIT ───────────────────────────────────────────────── */
+/* Load saved V2 state; emotion weights always, progression if craft */
+loadV2State();
+/* Fetch entitlements (cache first, then server in background) */
 refreshEntitlements();
 
 /* ═══ SERVICE WORKER REGISTRATION ═══ */
