@@ -126,9 +126,77 @@ npx ng build --configuration=production  # output to ../boy/
 5. **Sound**: Each creature has unique sound DNA that drifts through mutation
 6. **Gifts**: Creatures exchange sound DNA fragments during sync
 
-## Contributing
+## Capability Gates (Client-Side)
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, or visit the **[Contributor Portal](https://www.shortfactory.shop/contribute/)** for open bounties and SFT rewards.
+ALIVE uses a lightweight capability-gating system so the core experience stays free for everyone, while advanced Growth Skills can be unlocked with ShortFactory tokens.
+
+### How it works
+
+```
+CAP = { craft: false, geneLab: false }   ← live flags
+gate('craft', 'shape upgrades')          ← call before any premium action
+refreshEntitlements()                    ← fetches flags from your server
+```
+
+| Key | Feature group | What it unlocks |
+|-----|--------------|-----------------|
+| `craft` | **Craft Kit** | Shape upgrades, harmony layers, voice training, rhythm timeline + combo |
+| `geneLab` | **Gene Lab** | Breeding, offspring, genome mixing |
+
+The gate function shows a friendly, non-aggressive message in the UI if the capability is locked; the core experience (shapes, mic hum-to-note, trust bar, memory, emotion labels) is never gated.
+
+### Implementing the server endpoint
+
+Create `GET /api/alive/entitlements` on your server. The request always includes cookies (`credentials: 'include'`), so you can verify the session and return the appropriate flags.
+
+**Expected response** (HTTP 200, `Content-Type: application/json`):
+```json
+{ "craft": true, "geneLab": false }
+```
+
+- Return only the keys your server knows about; unknown keys are ignored.
+- Any non-200 response is discarded silently — the core experience keeps running.
+- Absent keys leave the existing flag unchanged (defaults to `false`).
+
+**Example (PHP)**:
+```php
+<?php
+header('Content-Type: application/json');
+session_start();
+$uid = $_SESSION['user_id'] ?? null;
+$tokens = $uid ? db_get_sft_balance($uid) : 0;
+echo json_encode([
+    'craft'   => $tokens >= 10,
+    'geneLab' => $tokens >= 50,
+]);
+```
+
+**Example (Node/Express)**:
+```js
+app.get('/api/alive/entitlements', (req, res) => {
+  const tokens = req.session?.sftBalance ?? 0;
+  res.json({ craft: tokens >= 10, geneLab: tokens >= 50 });
+});
+```
+
+> **Important**: Client-side gating is a UX courtesy, not a security boundary. Premium content delivered to the client can be accessed by a determined user. If premium content has real monetary value, enforce entitlements on the server before serving any premium assets or data.
+
+### Developer console commands
+
+```js
+ALIVE.cap.status()          // → { craft: false, geneLab: false }
+ALIVE.cap.refresh()         // re-fetches from /api/alive/entitlements
+ALIVE.cap.unlock('craft')   // dev override — unlocks locally
+
+ALIVE.craft.shapeUpgrade()
+ALIVE.craft.harmonyLayer()
+ALIVE.craft.voiceTraining()
+ALIVE.craft.rhythmTimeline()
+
+ALIVE.geneLab.breed()
+```
+
+
 
 ## License
 
