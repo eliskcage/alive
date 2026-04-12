@@ -395,6 +395,20 @@ html,body{
   color:rgba(16,185,129,0.6);word-break:break-all;
 }
 
+/* ═══ CAPABILITY GATE LOG ═══ */
+.cap-log{
+  position:absolute;bottom:50px;left:50%;transform:translateX(-50%);
+  z-index:9;pointer-events:none;
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;
+  color:rgba(167,139,250,0.9);
+  background:rgba(5,5,16,0.88);
+  padding:8px 16px;border-radius:6px;
+  border:1px solid rgba(167,139,250,0.2);
+  text-align:center;white-space:nowrap;max-width:90%;
+  opacity:0;transition:opacity 0.4s ease;
+}
+.cap-log.show{opacity:1;}
+
 /* ═══ MOTION TRACKING LIGHT ═══ */
 .tracking-light{
   position:absolute;width:50px;height:50px;border-radius:50%;
@@ -495,6 +509,7 @@ html,body{
     <div class="pair-status" id="pairStatus"></div>
     <div class="pair-btn" onclick="hidePairing()" style="margin-top:12px;">CLOSE</div>
   </div>
+  <div class="cap-log" id="capLog"></div>
   <div class="sleep-overlay" id="sleepOverlay" onclick="wakeUp()"></div>
 </div>
 
@@ -4564,6 +4579,153 @@ window.ALIVE.ipfs = {
   cids: function() { return genome.ipfsCIDs; },
   mind: packageMind
 };
+
+/* ═══════════════════════════════════════════════════════════
+   CAPABILITY GATING — Craft Kit & Gene Lab
+   The core ALIVE experience is always free.
+   Advanced capabilities are unlocked with ShortFactory tokens
+   or via a server-side entitlements endpoint.
+   ───────────────────────────────────────────────────────────
+   NOTE: This is client-side gating only. Real enforcement
+   requires server-side verification. See README for details.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Central capability flags — updated by refreshEntitlements() */
+var CAP = {
+  craft:   false, /* Craft Kit: shape upgrades, harmony layers, voice training, rhythm timeline */
+  geneLab: false  /* Gene Lab: breeding, offspring, genome mixing */
+};
+
+/* Friendly display names shown to the player */
+var CAP_NAMES = {
+  craft:   'Craft Kit',
+  geneLab: 'Gene Lab'
+};
+
+var capLogEl = document.getElementById('capLog');
+var capLogTimer = null;
+
+/* Show a gentle message in the log bar */
+function showCapLog(msg) {
+  if (!capLogEl) return;
+  capLogEl.textContent = msg;
+  capLogEl.classList.add('show');
+  clearTimeout(capLogTimer);
+  capLogTimer = setTimeout(function() {
+    capLogEl.classList.remove('show');
+  }, 4000);
+}
+
+/* ─── gate(featureKey, why) ──────────────────────────────────
+   Call at the top of any premium action. Returns true if the
+   capability is enabled, false with a friendly message if not.
+   why — short phrase describing what the feature does.
+   ─────────────────────────────────────────────────────────── */
+function gate(featureKey, why) {
+  if (CAP[featureKey]) return true;
+  var name = CAP_NAMES[featureKey] || featureKey;
+  /* Kind, non-punitive message — no shame, no threats */
+  showCapLog('\u2728 ' + name + ' unlocks ' + (why || 'this') + ' \u2014 get it with SF Tokens');
+  return false;
+}
+
+/* ─── refreshEntitlements() ──────────────────────────────────
+   Fetches entitlements from the backend. Fails silently so the
+   core experience always works even without a server.
+   Expected JSON: { craft: boolean, geneLab: boolean }
+   ─────────────────────────────────────────────────────────── */
+var ENTITLEMENTS_URL = '/api/alive/entitlements';
+
+function refreshEntitlements() {
+  fetch(ENTITLEMENTS_URL, { credentials: 'include' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(data) {
+      if (!data) return;
+      if (typeof data.craft   === 'boolean') CAP.craft   = data.craft;
+      if (typeof data.geneLab === 'boolean') CAP.geneLab = data.geneLab;
+    })
+    .catch(function() { /* Offline or no server — core still works fine */ });
+}
+
+/* ─── CRAFT KIT STUBS ────────────────────────────────────────
+   Shape upgrades / harmony layers / voice training /
+   rhythm timeline + combo. All gated under CAP.craft.
+   These are stubs ready for full implementation.
+   ─────────────────────────────────────────────────────────── */
+function craftShapeUpgrade() {
+  if (!gate('craft', 'shape upgrades')) return;
+  /* TODO: morph creature nodes into unique evolved shapes */
+  soundHappyTrill();
+  evolveTrait('curiosity', 2);
+  addMilestone('Shape upgraded');
+  saveGenome();
+}
+
+function craftHarmonyLayer() {
+  if (!gate('craft', 'harmony layers')) return;
+  /* TODO: add a second oscillator layer enriching all sounds */
+  soundHappyTrill();
+  evolveTrait('musicality', 2);
+  addMilestone('Harmony layer added');
+  saveGenome();
+}
+
+function craftVoiceTraining() {
+  if (!gate('craft', 'voice training')) return;
+  /* TODO: open a guided voice-pattern training session */
+  soundHappyTrill();
+  evolveTrait('musicality', 3);
+  addMilestone('Voice training started');
+  saveGenome();
+}
+
+function craftRhythmTimeline() {
+  if (!gate('craft', 'rhythm timeline & combo')) return;
+  /* TODO: open the beat-lane rhythm game with combo scoring (BPM 90) */
+  soundHappyTrill();
+  evolveTrait('playfulness', 2);
+  addMilestone('Rhythm timeline opened');
+  saveGenome();
+}
+
+/* ─── GENE LAB STUBS ─────────────────────────────────────────
+   Breeding / offspring feature. Gated under CAP.geneLab.
+   ─────────────────────────────────────────────────────────── */
+function geneLabBreed() {
+  if (!gate('geneLab', 'breeding & offspring')) return;
+  /* TODO: combine this creature's genome with partner's to
+     produce a new generation (bump genome.generation, blend
+     trait values, inherit top learned sounds from both). */
+  soundHappyTrill();
+  setTimeout(function() {
+    bleep(400, 0.1, 0.05, 'sine', 0);
+    bleep(600, 0.1, 0.05, 'sine', 0.15);
+    bleep(800, 0.12, 0.06, 'sine', 0.3);
+    bleep(1000, 0.15, 0.07, 'sine', 0.5);
+  }, 200);
+  addMilestone('Gene Lab opened');
+  saveGenome();
+}
+
+/* Expose premium features + capability controls to debug console */
+window.ALIVE.craft = {
+  shapeUpgrade:   craftShapeUpgrade,
+  harmonyLayer:   craftHarmonyLayer,
+  voiceTraining:  craftVoiceTraining,
+  rhythmTimeline: craftRhythmTimeline
+};
+window.ALIVE.geneLab = { breed: geneLabBreed };
+window.ALIVE.cap = {
+  /* Read current capability flags */
+  status:  function() { return Object.assign({}, CAP); },
+  /* Manually refresh from server */
+  refresh: refreshEntitlements,
+  /* Developer override: ALIVE.cap.unlock('craft') */
+  unlock:  function(k) { if (Object.prototype.hasOwnProperty.call(CAP, k)) { CAP[k] = true; } }
+};
+
+/* Fetch entitlements once on load — silent if no server */
+refreshEntitlements();
 
 /* ═══ SERVICE WORKER REGISTRATION ═══ */
 if ('serviceWorker' in navigator) {
