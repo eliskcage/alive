@@ -164,7 +164,7 @@ Create `GET /api/alive/entitlements` on your server. The request always includes
 header('Content-Type: application/json');
 session_start();
 $uid = $_SESSION['user_id'] ?? null;
-$tokens = $uid ? db_get_sft_balance($uid) : 0;
+$tokens = $uid ? db_get_sft_balance($uid) : 0; // replace with your DB query
 echo json_encode([
     'craft'   => $tokens >= 10,
     'geneLab' => $tokens >= 50,

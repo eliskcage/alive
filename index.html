@@ -4717,11 +4717,11 @@ window.ALIVE.craft = {
 window.ALIVE.geneLab = { breed: geneLabBreed };
 window.ALIVE.cap = {
   /* Read current capability flags */
-  status:  function() { return JSON.parse(JSON.stringify(CAP)); },
+  status:  function() { return Object.assign({}, CAP); },
   /* Manually refresh from server */
   refresh: refreshEntitlements,
   /* Developer override: ALIVE.cap.unlock('craft') */
-  unlock:  function(k) { if (CAP.hasOwnProperty(k)) { CAP[k] = true; } }
+  unlock:  function(k) { if (Object.prototype.hasOwnProperty.call(CAP, k)) { CAP[k] = true; } }
 };
 
 /* Fetch entitlements once on load — silent if no server */
