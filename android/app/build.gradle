@@ -2,6 +2,13 @@ plugins {
     id 'com.android.application'
 }
 
+// Load keystore credentials from local.properties (not committed to git)
+def keystorePropertiesFile = rootProject.file('local.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace 'shop.shortfactory.alive'
     compileSdk 34
@@ -28,11 +35,10 @@ android {
 
     signingConfigs {
         release {
-            // Point to your keystore — see README
-            // storeFile file('alive-release.keystore')
-            // storePassword System.getenv('KEYSTORE_PASSWORD')
-            // keyAlias 'alive'
-            // keyPassword System.getenv('KEY_PASSWORD')
+            storeFile file(keystoreProperties.getProperty('storeFile', ''))
+            storePassword keystoreProperties.getProperty('storePassword', '')
+            keyAlias keystoreProperties.getProperty('keyAlias', '')
+            keyPassword keystoreProperties.getProperty('keyPassword', '')
         }
     }
 
@@ -40,7 +46,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
-            // signingConfig signingConfigs.release  // uncomment when keystore is set up
+            signingConfig signingConfigs.release
         }
         debug {
             // debug builds work without signing
