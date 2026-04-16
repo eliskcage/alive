@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Main app theme — dark to match ALIVE -->
-    <style name="Theme.ALIVE" parent="android:Theme.Material.NoActionBar">
+    <!-- Main app theme — dark to match ALIVE, AppCompat base -->
+    <style name="Theme.ALIVE" parent="Theme.AppCompat.NoActionBar">
         <item name="android:statusBarColor">#050508</item>
         <item name="android:navigationBarColor">#050508</item>
-        <item name="android:windowBackground">#050508</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="colorPrimary">#ff1493</item>
+        <item name="colorPrimaryDark">#050508</item>
+        <item name="colorAccent">#ff69b4</item>
     </style>
 
     <!-- Splash screen theme — shown briefly before Chrome TWA takes over -->
