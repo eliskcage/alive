@@ -567,12 +567,13 @@ body.girl-birthing #galaxy{
 </div>
 
 <script>
-// ═══ DEVICE GATE — Girl = screen ONLY ═══
+// ═══ DEVICE GATE — Girl = screen ONLY (bypassed when launched from Play Store TWA) ═══
 (function(){
+  var isApp = new URLSearchParams(window.location.search).get('source') === 'app';
   var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
     ('ontouchstart' in window && navigator.maxTouchPoints > 1) ||
     (window.innerWidth <= 900 && window.innerHeight > window.innerWidth);
-  if (isMobile) {
+  if (isMobile && !isApp) {
     document.body.innerHTML = '';
     document.body.style.cssText = 'margin:0;background:#000a14;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;overflow:hidden';
     // Phone icon with red X — "I am NOT a phone"

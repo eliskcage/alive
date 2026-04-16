@@ -20,7 +20,7 @@ import androidx.browser.trusted.TrustedWebActivityIntent;
 public class LauncherActivity extends android.app.Activity {
 
     private static final Uri LAUNCH_URI =
-            Uri.parse("https://www.shortfactory.shop/alive/");
+            Uri.parse("https://www.shortfactory.shop/alive/?source=app");
 
     private static final String CHROME_PACKAGE = "com.android.chrome";
 
