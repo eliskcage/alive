@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'shop.shortfactory.alive'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'shop.shortfactory.alive'
+        minSdk 23
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0'
+
+        // TWA metadata — Chrome uses this to verify the app
+        manifestPlaceholders = [
+            hostName       : 'www.shortfactory.shop',
+            defaultUrl     : 'https://www.shortfactory.shop/alive/',
+            launcherName   : 'ALIVE',
+            assetStatements: '[{ "relation": ["delegate_permission/common.handle_all_urls"],' +
+                             '  "target": { "namespace": "web", "site": "https://www.shortfactory.shop" }}]',
+            themeColor     : '#050508',
+            navigationColor: '#050508',
+            backgroundColor: '#050508'
+        ]
+    }
+
+    signingConfigs {
+        release {
+            // Point to your keystore — see README
+            // storeFile file('alive-release.keystore')
+            // storePassword System.getenv('KEYSTORE_PASSWORD')
+            // keyAlias 'alive'
+            // keyPassword System.getenv('KEY_PASSWORD')
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            // signingConfig signingConfigs.release  // uncomment when keystore is set up
+        }
+        debug {
+            // debug builds work without signing
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation 'androidx.browser:browser:1.8.0'
+}
